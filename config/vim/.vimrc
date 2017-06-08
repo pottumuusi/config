@@ -34,7 +34,7 @@ Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'vim-scripts/VisIncr'
 
 " Language
-Plugin 'Valloric/YouCompleteMe'
+Plugin 'ervandew/supertab'
 Plugin 'andreshazard/vim-logreview'
 Plugin 'vim-syntastic/syntastic'
 
@@ -170,7 +170,7 @@ nmap <F10> :SyntasticCheck<CR>
 " Syntastic to passive mode and back
 nmap <leader>stm :SyntasticToggleMode<CR>
 
-nmap <leader> bs :CtrlPBuffer<CR>
+nmap <leader>bs :CtrlPBuffer<CR>
 
 nmap <leader>new 0i[ ---- ]<ESC>
 nmap <leader>did 0f-deiDONE<ESC>
@@ -188,8 +188,6 @@ nnoremap <leader>a :Ack!<Space>
 
 " Compatibility
 " =============
-" Diagnostics off because Syntastic will be used instead
-let g:ycm_show_diagnostics_ui = 0
 
 " Help
 " ====
@@ -216,12 +214,12 @@ if has('cscope')
 
 	command -nargs=0 Cscope cs add $VIMSRC/src/cscope.out $VIMSRC/src
 
-	nnoremap <leader>s yiw:cs find s
+	nnoremap <leader>css yiw:cs find s
 		\ <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-	nnoremap <leader>g yiw:cs find g
+	nnoremap <leader>csg yiw:cs find g
 		\ <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-	nnoremap <leader>d yiw:cs find d
+	nnoremap <leader>csd yiw:cs find d
 		\ <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
-	nnoremap <leader>c yiw:cs find c
+	nnoremap <leader>csc yiw:cs find c
 		\ <C-R>=expand("<cword>")<CR><CR>:bd<CR>:cwindow<CR>/<C-R>0<CR>
 endif
