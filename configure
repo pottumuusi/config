@@ -1,0 +1,67 @@
+#!/bin/bash
+
+readonly relative_repo_root=$( dirname $0 )
+
+cd $relative_repo_root
+
+readonly repo_root=$(pwd)
+readonly data_dir="$repo_root/data"
+readonly config_dir="$repo_root/config"
+readonly include_dir="$repo_root/include"
+readonly bash_include_dir="$include_dir/scripts/bash"
+
+readonly shared_vars_file="$data_dir/shared_vars.sh"
+readonly config_list_file="$data_dir/config_list.sh"
+readonly old_config_list_file="$data_dir/config_list.sh.old"
+
+. $bash_include_dir/assert.sh
+
+make_nonexistent_symlink() {
+	src=$1
+	dest=$2
+
+	if [ ! -f $src ] ; then
+		echo "No such file: $src"
+		exit 1
+	fi
+
+	if [ ! -h $dest ] ; then
+		ln -s $src $dest
+	fi
+}
+
+add_dir_path() {
+	local name=$1
+	local path=$2
+
+	assert_dir "$path" "${bold}$path${normal} not found."
+	echo "readonly $name=$path" >> $shared_vars_file
+}
+
+add_file_path() {
+	local name=$1
+	local path=$2
+
+	assert_file "$path" "${bold}$path${normal} not found."
+	echo "readonly $name=$path" >> $shared_vars_file
+}
+
+if [ ! -d data ] ; then
+	mkdir data
+fi
+
+echo -n "" > $shared_vars_file
+
+add_dir_path "repo_root" $repo_root
+add_dir_path "config_dir" $config_dir
+add_dir_path "data_dir" $data_dir
+add_dir_path "include_dir" $include_dir
+add_dir_path "bash_include_dir" $bash_include_dir
+
+add_file_path "config_list_file" $config_list_file
+add_file_path "old_config_list_file" $old_config_list_file
+
+# Write symlinks leading to data/ to necessary locations
+make_nonexistent_symlink \
+	$shared_vars_file \
+	scripts/env/cfgcontrol/shared_vars
