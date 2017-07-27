@@ -1,5 +1,6 @@
-" Plugins
-" =======
+" =========================================================
+" Plugins / Plugins / Plugins / Plugins / Plugins / Plugins
+" =========================================================
 set nocompatible	" Be iMproved, required
 filetype off		" required
 
@@ -22,21 +23,31 @@ Plugin 'VundleVim/Vundle.vim'
 " Git wrapper
 Plugin 'tpope/vim-fugitive'
 
-" Utilities
+" Search
 Plugin 'mileszs/ack.vim'
-Plugin 'SirVer/ultisnips'
-Plugin 'majutsushi/tagbar'
-Plugin 'sjl/gundo.vim'
-Plugin 'tpope/vim-commentary'
 Plugin 'ctrlpvim/ctrlp.vim'
 
-" Editing
+" Files
+Plugin 'tpope/vim-vinegar'
+
+" View
+Plugin 'majutsushi/tagbar'
+
+" Edit
+Plugin 'tpope/vim-commentary'
+Plugin 'sjl/gundo.vim'
+Plugin 'SirVer/ultisnips'
 Plugin 'vim-scripts/VisIncr'
 
 " Language
-Plugin 'ervandew/supertab'
+" Plugin 'ervandew/supertab'
+Plugin 'Shougo/neocomplete.vim'
 Plugin 'andreshazard/vim-logreview'
 Plugin 'vim-syntastic/syntastic'
+
+" Journal
+Plugin 'vimwiki/vimwiki'
+" Plugin 'tbabej/taskwiki' " <- python problems
 
 " Colors
 Plugin 'bling/vim-airline'
@@ -45,8 +56,9 @@ Plugin 'vim-airline/vim-airline-themes'
 call vundle#end()		" required
 filetype plugin indent on	" required
 
-" Visuals
-" =======
+" =========================================================
+" Visuals / Visuals / Visuals / Visuals / Visuals / Visuals
+" =========================================================
 " Allow buffers to be hidden if buffer is modified
 set hidden
 
@@ -63,16 +75,16 @@ set wrap
 set guitablabel=%t
 
 " 80 character limit marker
-set colorcolumn=80
+set colorcolumn=79
 
 set tabpagemax=100
 
 " Highlight current line
 set cursorline
-hi CursorLine	cterm=NONE ctermbg=darkgrey
-		\ ctermfg=red guibg=darkgrey guifg=red
-hi CursorColumn cterm=NONE ctermbg=darkgrey
-		\ ctermfg=red guibg=darkgrey guifg=red
+hi CursorLine	ctermbg=black
+		\ ctermfg=red guibg=black guifg=red
+hi CursorColumn ctermbg=black
+		\ ctermfg=red guibg=black guifg=red
 
 "let $VIMRUNTIME='/usr/share/vim/vim80'
 syntax enable
@@ -108,23 +120,9 @@ let g:airline_symbols.paste = 'Þ'
 let g:airline_symbols.paste = '∥'
 let g:airline_symbols.whitespace = 'Ξ'
 
-" Behavior
-" ========
-" Do not jump to first result automatically
-cnoreabbrev Ack Ack!
-
-" Syntastic recommended beginner settings
-set statusline+=%#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-" Keymapping
-" ==========
+" ==============================================================
+" Keymapping / Keymapping / Keymapping / Keymapping / Keymapping
+" ==============================================================
 let mapleader = ","
 
 " Open a new empty buffer
@@ -186,12 +184,54 @@ nnoremap <leader>ct :set nocursorline nocursorcolumn<CR>
 " Do not jump to first result automatically
 nnoremap <leader>a :Ack!<Space>
 
-" Compatibility
-" =============
+nmap <leader>wah :VimwikiAll2HTML<CR>
 
-" Help
-" ====
-" :help syntastic-checkers
+nmap <leader>ncd :NeoCompleteEnable<CR>
+nmap <leader>nce :NeoCompleteDisable<CR>
+
+" =====================================================
+" Help / Help / Help / Help / Help / Help / Help / Help
+" =====================================================
+" :help syntastic-checkers " <- lists syntax checkers
+" :help vimwiki " <- help on wiki syntax
+
+" ====================================================
+" Remember / Remember / Remember / Remember / Remember
+" ====================================================
+
+" Format text to column width
+" gq
+
+" Paste from yank register
+" "0p
+
+" About vim registers: http://www.brianstorti.com/vim-registers/
+
+" ====================================================
+" External / External / External / External / External
+" ====================================================
+
+let g:neocomplete#enable_at_startup = 1
+
+" Do not jump to first result automatically
+cnoreabbrev Ack Ack!
+
+" Syntastic recommended beginner settings
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+let g:vimwiki_list = [
+		\{'path': '~/vimwiki/luk.wiki'},
+		\{'path': '~/vimwiki/software_projects.wiki'},
+		\{'path': '~/vimwiki/hardware.wiki'},
+		\{'path': '~/vimwiki/improvement.wiki'}
+	\]
 
 if has('cscope')
 	set cscopetag cscopeverbose
