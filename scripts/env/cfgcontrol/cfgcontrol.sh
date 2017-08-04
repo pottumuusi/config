@@ -2,23 +2,31 @@
 
 declare -r argc=$#
 declare -r -a argv=( "$@" )
-declare -r bold=$(tput bold)
-declare -r normal=$(tput sgr0)
 declare -r relative_script_dir=$( dirname $0 )
 
-main() {
-	cd $relative_script_dir
-	readonly script_dir=$(pwd)
+echo "relative script dir is: $relative_script_dir"
 
-	if [ ! -h $script_dir/shared_vars ] ; then
-		echo "Link to file with shared variables not found. Running"
+main() {
+	# TODO try doing without relative_script_dir. with only $0
+	cd "$relative_script_dir"
+
+	echo "Relative script dir content"
+	echo "==========================="
+	echo "$(pwd)"
+	echo "$(ls -la)"
+
+	if [ ! -h ./common ] ; then
+		echo "Link to common includefile not found. Running"
 		echo "$script_dir/configure should generate this file."
+		echo "This script is expected to be ran by using file found"
+		echo "from $bin_dir."
 		exit 1
 	fi
 
-	. $script_dir/shared_vars
-	. $script_dir/arg.sh
-	. $script_dir/interact.sh
+	. ./common
+	. $cfgcontrol_dir/arg.sh
+	. $cfgcontrol_dir/print.sh
+	. $bash_include_dir/interact.sh
 	. $bash_include_dir/assert.sh
 	. $bash_include_dir/debug.sh
 
@@ -31,12 +39,13 @@ main() {
 	fi
 }
 
+# TODO remve this function. not in use
 do_clean() {
-	dir_to_remove="$script_dir/backup"
+	local dir_to_remove="$cfgcontrol_dir/backup"
 
 	if [ -d "$dir_to_remove" ] ; then
 		local answer=$(get_yes_no \
-			"Recursively remove $dir_to_remove")
+			"Recursively remove $dir_to_remove?")
 
 		rm -rf $dir_to_remove
 	else
@@ -48,8 +57,8 @@ do_clean() {
 do_pull() {
 	echo Pulling tracked configuration files from project...
 
-	if [ ! -d $script_dir/backup ] ; then
-		mkdir $script_dir/backup
+	if [ ! -d $cfgcontrol_dir/backup ] ; then
+		mkdir $cfgcontrol_dir/backup
 	fi
 
 	extract_entries_from_files \
@@ -68,7 +77,8 @@ do_pull() {
 
 		cp \
 			$local_config_path \
-			$script_dir/backup/$config_file_name-$(date -Iseconds)
+			$cfgcontrol_dir/backup/$config_file_name-$(date \
+				-Iseconds)
 
 		cp $repo_config_path $local_config_path
 
@@ -82,10 +92,10 @@ do_pull() {
 		echo "Pulled $config_file_name"
 	done
 
-	msg+="\nBackups of local configs have been written to "
-	msg+="$script_dir/backup\n"
+	local msg="\nBackups of local configs have been written to "
+	msg+="$cfgcontrol_dir/backup\n"
 	msg+="Run ${bold}cfgcontrol clean${normal} to remove all backups "
-	msg+="from $script_dir/backup\n"
+	msg+="from $cfgcontrol_dir/backup\n"
 
 	echo -e "$msg"
 }
@@ -147,7 +157,7 @@ do_sync() {
 			continue
 		fi
 
-		config_name=$( basename $config )
+		local config_name=$( basename $config )
 
 		# Bash variable expansion needs "
 		# Use | as delimiter because variable with path expands to
@@ -162,10 +172,10 @@ do_sync() {
 	for config in ${repo_config_entries[@]}
 	do
 		config=$(echo $config | sed -e 's/repo://g')
-		config_name=$( basename $config )
+		local config_name=$( basename $config )
 
-		is_local_config="n"
-		is_local_config=$(local_config_in \
+		local is_local_config="n"
+		local is_local_config=$(local_config_in \
 			"$config_name" local_config_entries[@])
 
 		if [ "y" == "$is_local_config" ] ; then
@@ -173,12 +183,13 @@ do_sync() {
 		fi
 
 		echo "Searching for $config_name from $HOME"
-		local_config_locations=$(find $HOME -name $config_name)
+		local local_config_locations=$(find $HOME -name $config_name)
 
-		path_to_insert=""
+		local path_to_insert=""
 		for location in $local_config_locations
 		do
-			answer=$(get_yes_no "Use $location for $config_name")
+			local answer=$(get_yes_no \
+				"Use $location for $config_name?")
 
 			if [ "y" == "$answer" ] ; then
 				path_to_insert="$location"

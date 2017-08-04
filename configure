@@ -1,26 +1,29 @@
 #!/bin/bash
 
 readonly relative_repo_root=$( dirname $0 )
-
 cd $relative_repo_root
 
 readonly repo_root=$(pwd)
-readonly data_dir="$repo_root/data"
-readonly config_dir="$repo_root/config"
-readonly include_dir="$repo_root/include"
-readonly bash_include_dir="$include_dir/scripts/bash"
+readonly commonsh_full_path="$repo_root/scripts/common/common.sh"
 
-readonly shared_vars_file="$data_dir/shared_vars.sh"
-readonly config_list_file="$data_dir/config_list.sh"
-readonly old_config_list_file="$data_dir/config_list.sh.old"
-
+. $commonsh_full_path
 . $bash_include_dir/assert.sh
+. $bash_include_dir/interact.sh
 
 make_nonexistent_symlink() {
-	src=$1
-	dest=$2
+	local src="$1"
+	local dest="$2"
+	local file_found="n"
 
-	if [ ! -f $src ] ; then
+	if [ -f "$src" ] ; then
+		file_found="y"
+	fi
+
+	if [ -d "$src" ] ; then
+		file_found="y"
+	fi
+
+	if [ "n" == "file_found" ] ; then
 		echo "No such file: $src"
 		exit 1
 	fi
@@ -31,37 +34,132 @@ make_nonexistent_symlink() {
 }
 
 add_dir_path() {
-	local name=$1
-	local path=$2
+	local name="$1"
+	local path="$2"
 
 	assert_dir "$path" "${bold}$path${normal} not found."
 	echo "readonly $name=$path" >> $shared_vars_file
 }
 
 add_file_path() {
-	local name=$1
-	local path=$2
+	local name="$1"
+	local path="$2"
 
 	assert_file "$path" "${bold}$path${normal} not found."
 	echo "readonly $name=$path" >> $shared_vars_file
 }
 
+add_var() {
+	local name="$1"
+	local val="$2"
+
+	assert_nonempty_str "$val" "${bold}$val${normal} is empty."
+	echo "readonly $name=$val" >> $shared_vars_file
+}
+
+add_str_var() {
+	local name="$1"
+	local val="$2"
+
+	assert_nonempty_str "$val" "${bold}$val${normal} is empty."
+	echo "readonly $name=\"$val\"" >> $shared_vars_file
+}
+
+# TODO add own common.sh for every script. The content will be shared with
+# TODO all other scripts by adding content of every owned common.sh to the
+# TODO main common.sh in common/ directory.
+# TODO Only modify the main common.sh in out/ directory.
+
+# TODO
+# find all common.sh files under scripts/ and append them to one file:
+# common.sh which is written to out/ dir
+# then need to distribute symlink pointing to common.sh to all scripts
+
+if [ ! -d "$HOME/.$repo_name" ] ; then
+	mkdir $HOME/.$repo_name
+fi
+
 if [ ! -d data ] ; then
 	mkdir data
 fi
 
-echo -n "" > $shared_vars_file
+if [ ! -d "$out_dir" ] ; then
+	mkdir "$out_dir"
+fi
 
+# TODO creation of out and code generation should be moved to make
+# cp -r scripts $out_dir
+
+# TODO remove usage of share_vars_file
+#echo -n "" > $shared_vars_file
+
+# Prepend repo_root to common.sh
+# echo -e "readonly repo_root=$repo_root $autoadd_comment" \
+#	> temp_common.txt
+# echo -e "$autoadd_comment\ndata_dir=$data_dir" \
+# 	>> temp_common.txt
+# echo -e "$autoadd_comment\nshared_vars_file=$shared_vars_file" \
+# 	>> temp_common.txt
+
+# cat $scripts_common_file >> temp_common.txt
+# cp temp_common.txt $scripts_common_out_file
+# rm temp_common.txt
+
+if [ -f "Makefile.in" ] ; then
+ 	echo "repo_root = \"$repo_root\""  > Makefile
+	cat Makefile.in >> Makefile
+fi
+
+# if [ -z "$(grep "repo_root =" Makefile)" ] ; then
+# 	echo "repo_root = \"$repo_root\""  > tempmake.txt
+# 	cat Makefile >> tempmake.txt
+# 	cp tempmake.txt Makefile
+# fi
+
+# TODO Add configure file for each script. It should add variables relevant to
+# TODO that script. Then call every configure from this file.
 add_dir_path "repo_root" $repo_root
 add_dir_path "config_dir" $config_dir
+add_dir_path "bin_dir" $bin_dir
 add_dir_path "data_dir" $data_dir
 add_dir_path "include_dir" $include_dir
 add_dir_path "bash_include_dir" $bash_include_dir
+add_dir_path "cfgcongrol_dir" $cfgcongrol_dir
 
 add_file_path "config_list_file" $config_list_file
 add_file_path "old_config_list_file" $old_config_list_file
+add_file_path "cfgcontrol_main_file" $cfgcontrol_main_file
 
-# Write symlinks leading to data/ to necessary locations
+add_var "bold" $bold
+add_var "normal" $normal
+add_var "repo_name" $repo_name
+
+# Add common behavior to beginning of to all main files of scripts.
+# echo "Adding sourcing of common.sh"
+# sed -i \
+# 	's|\('"$bash_interpreter_spec"'\)|\1'"$insert_common"'|g' \
+# 	$cfgcontrol_out_main_file
+
 make_nonexistent_symlink \
-	$shared_vars_file \
-	scripts/env/cfgcontrol/shared_vars
+	$scripts_common_out_file \
+	$bin_dir/common
+
+make_nonexistent_symlink \
+ 	$cfgcontrol_out_main_file \
+ 	$bin_dir/cfgcontrol
+
+make_nonexistent_symlink \
+	$bin_dir \
+	$HOME/.$repo_name/bin
+
+answer=$(get_yes_no "Add project bin/ to your PATH?")
+if [ "y" == $answer ] ; then
+	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
+
+	if [ -z "$filtered_path" ] ; then
+		echo "$repo_envpath_entry" \
+			>> $HOME/.profile
+	else
+		echo "Already added to path. Not adding second time."
+	fi
+fi
