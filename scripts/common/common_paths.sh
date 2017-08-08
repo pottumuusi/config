@@ -1,3 +1,4 @@
+readonly repo_root="/root/my/config/useful-files"
 # Rows containing [RMTAG] will be deleted from resulting out file.
 # [RMTAG] $repo_root will be added by make to resulting out file.
 

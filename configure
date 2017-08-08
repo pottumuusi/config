@@ -3,8 +3,8 @@
 readonly relative_repo_root=$( dirname $0 )
 cd $relative_repo_root
 
-readonly repo_root=$(pwd)
-readonly commonsh_full_path="$repo_root/scripts/common/common.sh"
+repo_root=$(pwd)
+readonly commonsh_full_path="$repo_root/scripts/common/common_paths.sh"
 
 . $commonsh_full_path
 . $bash_include_dir/assert.sh
@@ -37,7 +37,7 @@ add_dir_path() {
 	local name="$1"
 	local path="$2"
 
-	assert_dir "$path" "${bold}$path${normal} not found."
+	assert_dir "$path" "${bold}$name${normal} not found."
 	echo "readonly $name=$path" >> $shared_vars_file
 }
 
@@ -45,7 +45,7 @@ add_file_path() {
 	local name="$1"
 	local path="$2"
 
-	assert_file "$path" "${bold}$path${normal} not found."
+	assert_file "$path" "${bold}$name${normal} not found."
 	echo "readonly $name=$path" >> $shared_vars_file
 }
 
@@ -53,7 +53,7 @@ add_var() {
 	local name="$1"
 	local val="$2"
 
-	assert_nonempty_str "$val" "${bold}$val${normal} is empty."
+	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
 	echo "readonly $name=$val" >> $shared_vars_file
 }
 
@@ -61,9 +61,31 @@ add_str_var() {
 	local name="$1"
 	local val="$2"
 
-	assert_nonempty_str "$val" "${bold}$val${normal} is empty."
+	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
 	echo "readonly $name=\"$val\"" >> $shared_vars_file
 }
+
+assert_file "Makefile.in" "${bold}$name${normal} not found."
+
+touch Makefile
+
+answer=$(get_yes_no "Add project bin/ to your PATH?")
+if [ "y" == $answer ] ; then
+
+	# add repo_envpath_entry to makefile ONLY IF user wants to add bin to PATH. use repo_envpath_entry to control make install behavior
+	echo "repo_envpath_entry := $repo_envpath_entry" >> Makefile
+
+#	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
+#
+#	if [ -z "$filtered_path" ] ; then
+#		echo "$repo_envpath_entry" \
+#			>> $HOME/.profile
+#	fi
+fi
+
+echo "repo_root := $repo_root"  >> Makefile
+echo "home_dir := $HOME" >> Makefile
+cat Makefile.in >> Makefile
 
 # TODO add own common.sh for every script. The content will be shared with
 # TODO all other scripts by adding content of every owned common.sh to the
@@ -75,17 +97,9 @@ add_str_var() {
 # common.sh which is written to out/ dir
 # then need to distribute symlink pointing to common.sh to all scripts
 
-if [ ! -d "$HOME/.$repo_name" ] ; then
-	mkdir $HOME/.$repo_name
-fi
-
-if [ ! -d data ] ; then
-	mkdir data
-fi
-
-if [ ! -d "$out_dir" ] ; then
-	mkdir "$out_dir"
-fi
+# if [ ! -d "$HOME/.$repo_name" ] ; then
+# 	mkdir $HOME/.$repo_name
+# fi
 
 # TODO creation of out and code generation should be moved to make
 # cp -r scripts $out_dir
@@ -105,10 +119,6 @@ fi
 # cp temp_common.txt $scripts_common_out_file
 # rm temp_common.txt
 
-if [ -f "Makefile.in" ] ; then
- 	echo "repo_root = \"$repo_root\""  > Makefile
-	cat Makefile.in >> Makefile
-fi
 
 # if [ -z "$(grep "repo_root =" Makefile)" ] ; then
 # 	echo "repo_root = \"$repo_root\""  > tempmake.txt
@@ -118,21 +128,22 @@ fi
 
 # TODO Add configure file for each script. It should add variables relevant to
 # TODO that script. Then call every configure from this file.
-add_dir_path "repo_root" $repo_root
-add_dir_path "config_dir" $config_dir
-add_dir_path "bin_dir" $bin_dir
-add_dir_path "data_dir" $data_dir
-add_dir_path "include_dir" $include_dir
-add_dir_path "bash_include_dir" $bash_include_dir
-add_dir_path "cfgcongrol_dir" $cfgcongrol_dir
 
-add_file_path "config_list_file" $config_list_file
-add_file_path "old_config_list_file" $old_config_list_file
-add_file_path "cfgcontrol_main_file" $cfgcontrol_main_file
-
-add_var "bold" $bold
-add_var "normal" $normal
-add_var "repo_name" $repo_name
+# add_dir_path "repo_root" $repo_root
+# add_dir_path "config_dir" $config_dir
+# add_dir_path "bin_dir" $bin_dir
+# add_dir_path "data_dir" $data_dir
+# add_dir_path "include_dir" $include_dir
+# add_dir_path "bash_include_dir" $bash_include_dir
+# add_dir_path "cfgcongrol_dir" $cfgcongrol_dir
+# 
+# add_file_path "config_list_file" $config_list_file
+# add_file_path "old_config_list_file" $old_config_list_file
+# add_file_path "cfgcontrol_main_file" $cfgcontrol_main_file
+# 
+# add_var "bold" $bold
+# add_var "normal" $normal
+# add_var "repo_name" $repo_name
 
 # Add common behavior to beginning of to all main files of scripts.
 # echo "Adding sourcing of common.sh"
@@ -140,26 +151,16 @@ add_var "repo_name" $repo_name
 # 	's|\('"$bash_interpreter_spec"'\)|\1'"$insert_common"'|g' \
 # 	$cfgcontrol_out_main_file
 
-make_nonexistent_symlink \
-	$scripts_common_out_file \
-	$bin_dir/common
+# make_nonexistent_symlink \
+#	$scripts_common_out_file \
+#	$bin_dir/common
 
-make_nonexistent_symlink \
- 	$cfgcontrol_out_main_file \
- 	$bin_dir/cfgcontrol
+# make_nonexistent_symlink \
+# 	$cfgcontrol_out_main_file \
+#  	$bin_dir/cfgcontrol
 
-make_nonexistent_symlink \
-	$bin_dir \
-	$HOME/.$repo_name/bin
+# make_nonexistent_symlink \
+#	$bin_dir \
+#	$HOME/.$repo_name/bin
 
-answer=$(get_yes_no "Add project bin/ to your PATH?")
-if [ "y" == $answer ] ; then
-	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
 
-	if [ -z "$filtered_path" ] ; then
-		echo "$repo_envpath_entry" \
-			>> $HOME/.profile
-	else
-		echo "Already added to path. Not adding second time."
-	fi
-fi

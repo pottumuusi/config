@@ -4,10 +4,7 @@ declare -r argc=$#
 declare -r -a argv=( "$@" )
 declare -r relative_script_dir=$( dirname $0 )
 
-echo "relative script dir is: $relative_script_dir"
-
 main() {
-	# TODO try doing without relative_script_dir. with only $0
 	cd "$relative_script_dir"
 
 	echo "Relative script dir content"
@@ -15,15 +12,15 @@ main() {
 	echo "$(pwd)"
 	echo "$(ls -la)"
 
-	if [ ! -h ./common ] ; then
-		echo "Link to common includefile not found. Running"
+	if [ ! -f "./common/common_paths.sh" ] ; then
+		echo "Common include file not found. Running"
 		echo "$script_dir/configure should generate this file."
 		echo "This script is expected to be ran by using file found"
 		echo "from $bin_dir."
 		exit 1
 	fi
 
-	. ./common
+	. ./common/common_paths.sh
 	. $cfgcontrol_dir/arg.sh
 	. $cfgcontrol_dir/print.sh
 	. $bash_include_dir/interact.sh
@@ -39,7 +36,6 @@ main() {
 	fi
 }
 
-# TODO remve this function. not in use
 do_clean() {
 	local dir_to_remove="$cfgcontrol_dir/backup"
 

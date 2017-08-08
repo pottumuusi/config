@@ -1,20 +1,76 @@
+all_projects := \
+	cfgcontrol \
+	scripts_common
+
 subprojects := \
 	scripts/env/cfgcontrol \
 	scripts/common
 
-.PHONY: all install uninstall
+data_dir := $(repo_root)/data
+bin_dir := $(repo_root)/bin
+out_dir := $(repo_root)/out
+include_dir := $(repo_root)/include
 
-all:
-	if [ ! -d "out" ] ; then mkdir out ; fi
-	for project in $(subprojects) ; do \
-		echo "subproject is: $$project" ; \
-		mkdir -p $(repo_root)/out/$$project ; \
-		$(MAKE) -C $$project REPOROOT=$(repo_root) OUTDIR=$(repo_root)/out/$$project all ; \
-	done
+repo_name := useful-files
 
-install: out/scripts/env/cfgcontrol/cfgcontrol.sh
-	mkdir bin/
-	cp $< bin/cfgcontrol
+$(info home_dir is $(home_dir))
+
+.PHONY: all install uninstall $(all_projects)
+
+define search_entry_from_envpath
+	"$(cat $HOME/.profile | grep "$repo_envpath_entry")"
+endef
+
+all: $(all_projects)
+	echo "Make done"
+
+scripts_common: scripts/common
+	$(eval project_out=$(out_dir)/$^)
+	$(MAKE) -C $^ \
+		REPOROOT=$(repo_root) \
+		BINDIR=$(bin_dir) \
+		PROJECTOUT=$(project_out) \
+		all
+
+cfgcontrol: scripts/env/cfgcontrol
+	$(eval project_out=$(out_dir)/$^)
+	$(MAKE) -C $^ \
+		REPOROOT=$(repo_root) \
+		BINDIR=$(bin_dir) \
+		PROJECTOUT=$(project_out) \
+		all
+
+# TODO data and bin could be moved under out. Then dynamic content would be
+# TODO found under out directory.
+
+install:
+	if [ ! -d "$(bin_dir)" ] ; then mkdir $(bin_dir) ; fi
+	if [ ! -d "$(out_dir)" ] ; then mkdir $(out_dir) ; fi
+	if [ ! -d "$(data_dir)" ] ; then mkdir $(data_dir) ; fi
+	if [ ! -d "$(home_dir)/.$(repo_name)" ] ; then \
+		mkdir $(home_dir)/.$(repo_name) \
+	fi
+	if [ ! -h "$(home_dir)/.$(repo_name)/bin" ] ; then \
+		ln -s $(bin_dir) $(home_dir)/.$(repo_name)/bin \
+	fi
+
+#	if [ -z "$filtered_path" ] ; then
+#		echo "$repo_envpath_entry" \
+#			>> $HOME/.profile
+#	fi
 
 uninstall:
-	rm -f bin/cfgcontrol
+	ifdef $(repo_envpath_entry)
+		$(info def is true)
+	else
+		$(info def is false)
+	endif
+	$(eval filtered_path = $(call search_entry_from_envpath))
+	$(info filtered path is $(filtered_path))
+	ifeq ($(filtered_path),)
+		$(info filtered path is empty)
+	else
+		$(info filtered path is not empty)
+	endif
+	$(info not implemented)
+	# remove stuff created in install

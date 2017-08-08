@@ -1,16 +1,13 @@
 src = $(wildcard *.sh)
 
+exe_name = cfgcontrol
+project_main = cfgcontrol.sh
+
 .PHONY: all
 
 all: $(src)
-	$(info outdir is ${OUTDIR})
-	if [ ! -d "out" ] ; then mkdir out ; fi
-	for asource in $(src) ; do \
-		cp $$asource out ; \
+	for infile in $^ ; do \
+		cp $$infile ${PROJECTOUT} ; \
 	done
-
-# ifneq ($(wildcard /a/dirr/.*),)
-#         @echo "Found /a/dirr."
-# else
-#         @echo "Did not find /a/dirr."
-# endif
+	if [ -h "${BINDIR}/$(exe_name)" ] ; then rm ${BINDIR}/$(exe_name) ; fi
+	ln -s ${PROJECTOUT}/$(project_main) ${BINDIR}/$(exe_name)
