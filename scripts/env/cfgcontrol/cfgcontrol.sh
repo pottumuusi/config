@@ -2,25 +2,26 @@
 
 declare -r argc=$#
 declare -r -a argv=( "$@" )
+declare -r common_paths_file="./common/common_paths.sh"
 declare -r relative_script_dir=$( dirname $0 )
 
 main() {
 	cd "$relative_script_dir"
 
-	echo "Relative script dir content"
-	echo "==========================="
-	echo "$(pwd)"
-	echo "$(ls -la)"
-
-	if [ ! -f "./common/common_paths.sh" ] ; then
-		echo "Common include file not found. Running"
-		echo "$script_dir/configure should generate this file."
-		echo "This script is expected to be ran by using file found"
-		echo "from $bin_dir."
+	if [ ! -f "$common_paths_file" ] ; then
+		echo "[ ERROR ] Include file common_paths.sh not found."
+		echo "Running configure script of useful-files should"
+		echo "generate this file. $(basename $0) is expected to be"
+		echo "ran by using file found from bin/ directory of"
+		echo "useful-files."
 		exit 1
 	fi
 
-	. ./common/common_paths.sh
+	# TODO add include guards to all script files which might be sourced.
+	# Make include function which will keep track of already sourced
+	# script files. Previously unsourced files need to be sourced.
+
+	. $common_paths_file
 	. $cfgcontrol_dir/arg.sh
 	. $cfgcontrol_dir/print.sh
 	. $bash_include_dir/interact.sh
@@ -43,7 +44,7 @@ do_clean() {
 		local answer=$(get_yes_no \
 			"Recursively remove $dir_to_remove?")
 
-		rm -rf $dir_to_remove
+		rm -vrf $dir_to_remove
 	else
 		echo "Already clean"
 	fi
@@ -88,12 +89,10 @@ do_pull() {
 		echo "Pulled $config_file_name"
 	done
 
-	local msg="\nBackups of local configs have been written to "
-	msg+="$cfgcontrol_dir/backup\n"
-	msg+="Run ${bold}cfgcontrol clean${normal} to remove all backups "
-	msg+="from $cfgcontrol_dir/backup\n"
-
-	echo -e "$msg"
+	echo -n "Backups of local configs have been written to "
+	echo "$cfgcontrol_dir/backup"
+	echo "Running ${bold}cfgcontrol clean${normal} will remove all "
+	echo "backups from $cfgcontrol_dir/backup"
 }
 
 do_push() {

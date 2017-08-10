@@ -1,6 +1,9 @@
 print_help_and_exit() {
+	echo ""
 	echo "Usage: cfgcontrol [OPTION] ACTION"
-	echo "Share configuration files between multiple machines."
+	echo ""
+	echo "Copy configuration files to and from dedicated configuration"
+	echo "directory."
 	echo ""
 	echo "===== OPTIONS ====="
 	echo "-d, --debug         print debug messages when running"

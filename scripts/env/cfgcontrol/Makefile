@@ -1,11 +1,15 @@
 src = $(wildcard *.sh)
 
-exe_name = cfgcontrol
 project_main = cfgcontrol.sh
+
+# Substitute .sh with empty. Place string to use in substitution after the '='
+# character.
+exe_name = $(project_main:.sh=)
 
 .PHONY: all
 
 all: $(src)
+	echo "exe name is: $(exe_name)"
 	for infile in $^ ; do \
 		cp $$infile ${PROJECTOUT} ; \
 	done

@@ -91,5 +91,10 @@ do_action() {
 		return
 	fi
 
+	if [ "help" == "$action" ] ; then
+		print_help_and_exit
+		return
+	fi
+
 	exit_with_error "Unrecognized action $action."
 }

@@ -1,7 +1,9 @@
-all_projects := \
+all_targets := \
 	cfgcontrol \
 	scripts_common
 
+# Subprojects are required to have their own Makefile
+# Each subproject is a directory
 subprojects := \
 	scripts/env/cfgcontrol \
 	scripts/common
@@ -15,49 +17,80 @@ repo_name := useful-files
 
 $(info home_dir is $(home_dir))
 
-.PHONY: all install uninstall $(all_projects)
+# make does not consider implicit rules for PHONY targets
+.PHONY: all clean install uninstall $(all_targets)
 
 define search_entry_from_envpath
 	"$(cat $HOME/.profile | grep "$repo_envpath_entry")"
 endef
 
-all: $(all_projects)
+define subproject_make_with_common_attributes
+	$(eval subproject=$1)
+	$(eval project_out=$(out_dir)/$(subproject))
+
+	if [ ! -d $(project_out) ] ; then mkdir -p $(project_out) ; fi
+
+	$(MAKE) -C $(subproject) \
+		REPOROOT=$(repo_root) \
+		BINDIR=$(bin_dir) \
+		PROJECTOUT=$(project_out) \
+		all
+endef
+
+yes_no_macro := read -p "$(value prompt)" ans ; echo "$$ans"
+define add_to_path_if_wanted
+	$(eval prompt=Add project bin/ to your PATH? [y/n]: )
+	echo yes_no_macro is $(yes_no_macro)
+	# $(eval answer=$(shell $(yes_no_macro)))
+#	$(eval answer=$(shell \
+#		read -p "\$(prompt)" ans ; echo "$$ans"))
+
+	echo answer is: $(answer)
+
+# readonly repo_envpath_entry="PATH=\"\$HOME/.$repo_name/bin:\$PATH\""
+#	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
+#	if [ -z "$filtered_path" ] ; then
+#		echo "$repo_envpath_entry" \
+#			>> $HOME/.profile
+#	fi
+
+endef
+
+all: $(all_targets)
 	echo "Make done"
 
+clean:
+	rm -r $(out_dir)
+
 scripts_common: scripts/common
-	$(eval project_out=$(out_dir)/$^)
-	$(MAKE) -C $^ \
-		REPOROOT=$(repo_root) \
-		BINDIR=$(bin_dir) \
-		PROJECTOUT=$(project_out) \
-		all
+	$(call subproject_make_with_common_attributes, $^)
 
 cfgcontrol: scripts/env/cfgcontrol
-	$(eval project_out=$(out_dir)/$^)
-	$(MAKE) -C $^ \
-		REPOROOT=$(repo_root) \
-		BINDIR=$(bin_dir) \
-		PROJECTOUT=$(project_out) \
-		all
+	$(call subproject_make_with_common_attributes, $^)
+
+#	$(eval project_out=$(out_dir)/$^)
+#	$(MAKE) -C $^ \
+#		REPOROOT=$(repo_root) \
+#		BINDIR=$(bin_dir) \
+#		PROJECTOUT=$(project_out) \
+#		all
 
 # TODO data and bin could be moved under out. Then dynamic content would be
 # TODO found under out directory.
 
 install:
-	if [ ! -d "$(bin_dir)" ] ; then mkdir $(bin_dir) ; fi
-	if [ ! -d "$(out_dir)" ] ; then mkdir $(out_dir) ; fi
-	if [ ! -d "$(data_dir)" ] ; then mkdir $(data_dir) ; fi
-	if [ ! -d "$(home_dir)/.$(repo_name)" ] ; then \
-		mkdir $(home_dir)/.$(repo_name) \
-	fi
-	if [ ! -h "$(home_dir)/.$(repo_name)/bin" ] ; then \
-		ln -s $(bin_dir) $(home_dir)/.$(repo_name)/bin \
-	fi
+	$(call add_to_path_if_wanted)
 
-#	if [ -z "$filtered_path" ] ; then
-#		echo "$repo_envpath_entry" \
-#			>> $HOME/.profile
+#	if [ ! -d "$(bin_dir)" ] ; then mkdir $(bin_dir) ; fi
+#	if [ ! -d "$(out_dir)" ] ; then mkdir $(out_dir) ; fi
+#	if [ ! -d "$(data_dir)" ] ; then mkdir $(data_dir) ; fi
+#	if [ ! -d "$(home_dir)/.$(repo_name)" ] ; then \
+#		mkdir $(home_dir)/.$(repo_name) \
 #	fi
+#	if [ ! -h "$(home_dir)/.$(repo_name)/bin" ] ; then \
+#		ln -s $(bin_dir) $(home_dir)/.$(repo_name)/bin \
+#	fi
+
 
 uninstall:
 	ifdef $(repo_envpath_entry)

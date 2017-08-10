@@ -4,11 +4,22 @@ readonly relative_repo_root=$( dirname $0 )
 cd $relative_repo_root
 
 repo_root=$(pwd)
+add_bin_dir_to_path="true"
 readonly commonsh_full_path="$repo_root/scripts/common/common_paths.sh"
 
 . $commonsh_full_path
 . $bash_include_dir/assert.sh
 . $bash_include_dir/interact.sh
+
+# TODO help argument for this script
+for arg in "$@"
+do
+	case "$arg" in
+		--nopath)
+			add_bin_dir_to_path="false"
+			;;
+	esac
+done
 
 make_nonexistent_symlink() {
 	local src="$1"
@@ -67,12 +78,18 @@ add_str_var() {
 
 assert_file "Makefile.in" "${bold}$name${normal} not found."
 
+echo "Creating makefile(s)"
+
+if [ -f "Makefile" ] ; then rm Makefile ; fi
 touch Makefile
 
-answer=$(get_yes_no "Add project bin/ to your PATH?")
-if [ "y" == $answer ] ; then
+# TODO add a variable to makefile indicating whether to add bin/ to PATH.
+# TODO do adding only if bin/ is not already in PATH. check by grepping as in this file
+if [ "true" == "$add_bin_dir_to_path" ] ; then
 
-	# add repo_envpath_entry to makefile ONLY IF user wants to add bin to PATH. use repo_envpath_entry to control make install behavior
+	# IF user wants to add bin to PATH AND bin is not already added to PATH, will repo_envpath_entry be
+	# added to makefile. Use repo_envpath_entry to control make install
+	# behavior.
 	echo "repo_envpath_entry := $repo_envpath_entry" >> Makefile
 
 #	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
@@ -86,6 +103,16 @@ fi
 echo "repo_root := $repo_root"  >> Makefile
 echo "home_dir := $HOME" >> Makefile
 cat Makefile.in >> Makefile
+
+
+
+
+
+
+
+
+
+
 
 # TODO add own common.sh for every script. The content will be shared with
 # TODO all other scripts by adding content of every owned common.sh to the
@@ -118,7 +145,6 @@ cat Makefile.in >> Makefile
 # cat $scripts_common_file >> temp_common.txt
 # cp temp_common.txt $scripts_common_out_file
 # rm temp_common.txt
-
 
 # if [ -z "$(grep "repo_root =" Makefile)" ] ; then
 # 	echo "repo_root = \"$repo_root\""  > tempmake.txt
