@@ -8,21 +8,23 @@ subprojects := \
 	scripts/env/cfgcontrol \
 	scripts/common
 
+# repo_root is added by configure to actual Makefile
 data_dir := $(repo_root)/data
 bin_dir := $(repo_root)/bin
 out_dir := $(repo_root)/out
 include_dir := $(repo_root)/include
 
 repo_name := useful-files
+GLOBAL_CFGCONTROL_LINK_PATH := /usr/local/bin/cfgcontrol
+REPO_ENVPATH_ENTRY := PATH=\"\$$HOME/.$(repo_name)/bin:\$$PATH\"
 
-$(info home_dir is $(home_dir))
+# TODO split me to multiple lines
+search_for_path_entry_in_subshell := "$$(cat $$HOME/.profile | grep "$$(echo $(REPO_ENVPATH_ENTRY))")"
+
+$(info home_dir is $(home_dir)) # removeme
 
 # make does not consider implicit rules for PHONY targets
 .PHONY: all clean install uninstall $(all_targets)
-
-define search_entry_from_envpath
-	"$(cat $HOME/.profile | grep "$repo_envpath_entry")"
-endef
 
 define subproject_make_with_common_attributes
 	$(eval subproject=$1)
@@ -37,23 +39,83 @@ define subproject_make_with_common_attributes
 		all
 endef
 
-yes_no_macro := read -p "$(value prompt)" ans ; echo "$$ans"
-define add_to_path_if_wanted
-	$(eval prompt=Add project bin/ to your PATH? [y/n]: )
-	echo yes_no_macro is $(yes_no_macro)
-	# $(eval answer=$(shell $(yes_no_macro)))
-#	$(eval answer=$(shell \
-#		read -p "\$(prompt)" ans ; echo "$$ans"))
+define install_to_usr_local_bin
+	if [ ! -d "/usr/local/bin/useful-files/common" ] ; \
+		then mkdir -p /usr/local/bin/useful-files/common ; \
+	fi
 
-	echo answer is: $(answer)
+	# TODO test splitting to multiple rows and escaping newlines as usual
+	$(call add_nontexistent_symlink, $(bin_dir)/cfgcontrol, $(GLOBAL_CFGCONTROL_LINK_PATH))
+	$(call add_nontexistent_symlink, $(bin_dir)/common/common_paths.sh, /usr/local/bin/useful-files/common/common_paths)
+endef
+
+
+define install_to_home
+	$(eval envpath_entry_in_profile=$(shell \
+		if [ -n $(search_for_path_entry_in_subshell) ] \
+			; then echo "y" ; else echo "n" ; \
+		fi))
+	echo found in profile: $(envpath_entry_in_profile)
+	echo repo envpath entry is: $(REPO_ENVPATH_ENTRY)
+endef
+
+#	$(eval envpath_entry_in_profile=$(shell \
+#		if [ -n "$$(\
+#			cat $$HOME/.profile \
+#			| grep "$$(echo $(REPO_ENVPATH_ENTRY))")" ] \
+#			; then echo "y" ; else echo "n" ; \
+#		fi))
+
+# use following!
+#	echo found is $(envpath_entry_in_profile)
+#	$(eval envpath_entry_in_profile=$(shell if [ -n "$$(cat $$HOME/.profile | grep useful-files)" ] ; then echo "y" ; else echo "n" ; fi))
+
+# $(eval result=$(shell if [ -n "$$(cat $$HOME/.profile | grep "$$(echo $(REPO_ENVPATH_ENTRY))")" ] ; then echo "y" ; else echo "n" ; fi))
+# echo filtered_path is: $(result)
+
+
+#$(eval envpath_entry_in_profile=$(shell cat $HOME/.profile | grep "$(REPO_ENVPATH_ENTRY)"))
 
 # readonly repo_envpath_entry="PATH=\"\$HOME/.$repo_name/bin:\$PATH\""
 #	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
 #	if [ -z "$filtered_path" ] ; then
 #		echo "$repo_envpath_entry" \
 #			>> $HOME/.profile
-#	fi
+#
 
+# yes_no_macro := read -p "$(value prompt)" ans ; echo "$$ans"
+
+define add_nontexistent_symlink
+	$(eval destination=$(1))
+	$(eval path_to_new_link=$(2))
+
+	if [ ! -h "$(path_to_new_link)" ] ; then \
+		ln -s $(destination) $(path_to_new_link); \
+	fi
+endef
+
+# ifeq statements inside define blocks are treated as shell commands
+define add_to_path_if_wanted
+	echo in add_to_env_path_if_wanted. add is: $(add_to_env_path)
+
+	if [ "true" == "$(add_to_env_path)" ] ; then \
+	fi
+endef
+
+#else
+#	echo add_to_env_path is false
+
+#	$(eval prompt=Add project bin/ to your PATH? [y/n]: )
+#	echo yes_no_macro is $(yes_no_macro)
+#	$(eval answer=$(shell $(yes_no_macro)))
+#	$(eval answer=$(shell \
+#		read -p "\$(prompt)" ans ; echo "$$ans"))
+#	echo answer is: $(answer)
+
+define create_project_directories
+	if [ ! -d "$(bin_dir)" ] ; then mkdir $(bin_dir) ; fi
+	if [ ! -d "$(out_dir)" ] ; then mkdir $(out_dir) ; fi
+	if [ ! -d "$(data_dir)" ] ; then mkdir $(data_dir) ; fi
 endef
 
 all: $(all_targets)
@@ -75,22 +137,16 @@ cfgcontrol: scripts/env/cfgcontrol
 #		PROJECTOUT=$(project_out) \
 #		all
 
-# TODO data and bin could be moved under out. Then dynamic content would be
-# TODO found under out directory.
-
 install:
-	$(call add_to_path_if_wanted)
-
-#	if [ ! -d "$(bin_dir)" ] ; then mkdir $(bin_dir) ; fi
-#	if [ ! -d "$(out_dir)" ] ; then mkdir $(out_dir) ; fi
-#	if [ ! -d "$(data_dir)" ] ; then mkdir $(data_dir) ; fi
-#	if [ ! -d "$(home_dir)/.$(repo_name)" ] ; then \
-#		mkdir $(home_dir)/.$(repo_name) \
-#	fi
-#	if [ ! -h "$(home_dir)/.$(repo_name)/bin" ] ; then \
-#		ln -s $(bin_dir) $(home_dir)/.$(repo_name)/bin \
-#	fi
-
+	$(call create_project_directories)
+ifeq ($(add_to_env_path),true)
+ifeq ($(install_destination),home)
+	$(call install_to_home)
+endif
+ifeq ($(install_destination),usr_local_bin)
+	$(call install_to_usr_local_bin)
+endif
+endif
 
 uninstall:
 	ifdef $(repo_envpath_entry)
@@ -98,7 +154,6 @@ uninstall:
 	else
 		$(info def is false)
 	endif
-	$(eval filtered_path = $(call search_entry_from_envpath))
 	$(info filtered path is $(filtered_path))
 	ifeq ($(filtered_path),)
 		$(info filtered path is empty)
@@ -107,3 +162,7 @@ uninstall:
 	endif
 	$(info not implemented)
 	# remove stuff created in install
+#	TODO remove entry to home dir
+#	if [ ! -h "$(home_dir)/.$(repo_name)/bin" ] ; then \
+#		ln -s $(bin_dir) $(home_dir)/.$(repo_name)/bin \
+#	fi

@@ -1,43 +1,63 @@
 print_help_and_exit() {
-	echo ""
-	echo "Usage: cfgcontrol [OPTION] ACTION"
-	echo ""
-	echo "Copy configuration files to and from dedicated configuration"
-	echo "directory."
-	echo ""
-	echo "===== OPTIONS ====="
-	echo "-d, --debug         print debug messages when running"
-	echo "-h, --help          print this help text"
-	echo ""
-	echo "===== ACTIONS ====="
-	echo "clean               Remove backups of local configuration files."
-	echo "                    Backups are generated when using the ${bold}"
-	echo "                    pull${normal} action."
-	echo "push                Use files on local machine in replacing of"
-	echo "                    files in projects configuration directory."
-	echo "pull                Use files from projects configuration"
-	echo "                    directory in replacing of files used on local"
-	echo "                    machine. By default backups are made from"
-	echo "                    files on local machine before replacing them."
-	echo "sync                Update list of project & local configuration"
-	echo "                    file pairs. Files found from scripts"
-	echo "                    configuration directory which begin with"
-	echo "                    dot \".\" are added to the list. Files of"
-	echo "                    identical name are searched under users home"
-	echo "                    directory."
-	echo ""
-	echo "===== FILES ====="
-	echo "$config_list_file"
-	echo "    List of project & local configuration. Used in ${bold}pull"
-	echo "    ${normal} and ${bold}push${normal} actions to find out which"
-	echo "    files are considered to be the local equivalents of files in"
-	echo "    configuration directory of project."
-	echo ""
-	echo "===== DIRECTORIES ====="
-	echo "$config_dir"
-	echo "    Configuration directory of project. Contains the files"
-	echo "    intended to be shared with other machines. Add copies of new"
-	echo "    configuration files here."
- 
+	cat <<EOF
+
+Usage: cfgcontrol [OPTION] ACTION
+
+Copy configuration files to/from dedicated configuration directory.
+
+===== OPTIONS =====
+-d, --debug	print debug messages when running
+-h, --help	print this help text
+
+===== ACTIONS =====
+clean		Remove backups of local configuration files. Backups are
+		generated when using the ${bold} pull${normal} action.
+push		Use files on local machine in replacing of files in projects
+		configuration directory.
+pull		Use files from projects configuration directory in replacing
+		of files used on local machine. By default backups are made
+		from files on local machine before replacing them.
+sync		Update list of project & local configuration file pairs. Files
+		found from scripts configuration directory which begin with
+		dot "." are added to the list. Files of identical name are
+		searched under users home directory.
+
+===== FILES =====
+$config_list_file
+	List of project & local configuration. Used in ${bold}pull ${normal}
+	and ${bold}push${normal} actions to find out which files are
+	considered to be the local equivalents of files in configuration
+	directory of project.
+
+===== DIRECTORIES =====
+$config_dir
+	Configuration directory of project. Contains the files intended to be
+	shared with other machines. Add copies of new configuration files
+	here.
+EOF
+
 	exit 0
+}
+
+tell_about_backing_local_configs() {
+	cat <<EOF
+Backups of local configs have been written to $cfgcontrol_dir/backup
+
+Running ${bold}cfgcontrol clean${normal} will remove all backups from
+$cfgcontrol_dir/backup
+EOF
+}
+
+common_paths_not_found_print() {
+
+# Needed files are not sourced at this point of execution. Thus i.e. bold
+# variable can't be used.
+
+	cat <<EOF
+
+[ ERROR ] Include file common_paths.sh not found.
+
+Running configure script of useful-files should generate this file. cfgcontrol
+is expected to be ran by using file found from bin/ directory of useful-files.
+EOF
 }

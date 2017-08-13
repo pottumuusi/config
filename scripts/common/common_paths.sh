@@ -23,8 +23,9 @@ readonly old_config_list_file="$data_dir/config_list.sh.old"
 readonly cfgcontrol_main_file="$cfgcontrol_dir/cfgcontrol.sh"
 readonly cfgcontrol_out_main_file="$cfgcontrol_out_dir/cfgcontrol.sh"
 
+# TODO move non-path variables to another common sh file
 readonly bash_interpreter_spec="#!/bin/bash"
-readonly repo_name=$( basename $repo_root)
+readonly repo_name="$( basename $repo_root)"
 readonly scripts_common_file_name="$( basename $scripts_common_file )"
 readonly bold=$(tput bold)
 readonly normal=$(tput sgr0)

@@ -3,78 +3,55 @@
 readonly relative_repo_root=$( dirname $0 )
 cd $relative_repo_root
 
+# TODO rename scripts/ to src/
+
 repo_root=$(pwd)
 add_bin_dir_to_path="true"
+install_destination="usr_local_bin"
+
 readonly commonsh_full_path="$repo_root/scripts/common/common_paths.sh"
 
 . $commonsh_full_path
 . $bash_include_dir/assert.sh
 . $bash_include_dir/interact.sh
 
-# TODO help argument for this script
+print_help_and_exit() {
+	cat <<EOF
+
+Usage: configure [OPTION]
+
+Configure ${bold}useful-files${normal} for installation and use
+
+===== OPTIONS =====
+-h, --help			show this help message
+--nopath			<desc>
+--install-under=LOCATION	<desc>
+				LOCATION is one of the following:
+					${bold}usr-local-bin${normal}
+					${bold}home${normal}
+EOF
+
+	exit 0
+}
+
+# TODO print help when encountering unknown option
 for arg in "$@"
 do
 	case "$arg" in
+		--help)
+			print_help_and_exit
+			;;
 		--nopath)
 			add_bin_dir_to_path="false"
 			;;
+		--install-under=usr-local-bin)
+			install_destination="usr_local_bin"
+			;;
+		--install-under=home)
+			install_destination="home"
+			;;
 	esac
 done
-
-make_nonexistent_symlink() {
-	local src="$1"
-	local dest="$2"
-	local file_found="n"
-
-	if [ -f "$src" ] ; then
-		file_found="y"
-	fi
-
-	if [ -d "$src" ] ; then
-		file_found="y"
-	fi
-
-	if [ "n" == "file_found" ] ; then
-		echo "No such file: $src"
-		exit 1
-	fi
-
-	if [ ! -h $dest ] ; then
-		ln -s $src $dest
-	fi
-}
-
-add_dir_path() {
-	local name="$1"
-	local path="$2"
-
-	assert_dir "$path" "${bold}$name${normal} not found."
-	echo "readonly $name=$path" >> $shared_vars_file
-}
-
-add_file_path() {
-	local name="$1"
-	local path="$2"
-
-	assert_file "$path" "${bold}$name${normal} not found."
-	echo "readonly $name=$path" >> $shared_vars_file
-}
-
-add_var() {
-	local name="$1"
-	local val="$2"
-
-	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
-	echo "readonly $name=$val" >> $shared_vars_file
-}
-
-add_str_var() {
-	local name="$1"
-	local val="$2"
-
-	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
-	echo "readonly $name=\"$val\"" >> $shared_vars_file
-}
 
 assert_file "Makefile.in" "${bold}$name${normal} not found."
 
@@ -83,14 +60,89 @@ echo "Creating makefile(s)"
 if [ -f "Makefile" ] ; then rm Makefile ; fi
 touch Makefile
 
-# TODO add a variable to makefile indicating whether to add bin/ to PATH.
-# TODO do adding only if bin/ is not already in PATH. check by grepping as in this file
-if [ "true" == "$add_bin_dir_to_path" ] ; then
+echo "add_to_env_path := $add_bin_dir_to_path" >> Makefile
+echo "install_destination := $install_destination" >> Makefile
 
-	# IF user wants to add bin to PATH AND bin is not already added to PATH, will repo_envpath_entry be
-	# added to makefile. Use repo_envpath_entry to control make install
-	# behavior.
-	echo "repo_envpath_entry := $repo_envpath_entry" >> Makefile
+echo Install destination is: $install_destination
+
+echo "repo_root := $repo_root"  >> Makefile
+echo "home_dir := $HOME" >> Makefile
+cat Makefile.in >> Makefile
+
+# TODO
+# add own common.sh for every script. The content will be shared with
+# all other scripts by adding content of every owned common.sh to the
+# main common.sh in common/ directory in build time.
+# Only modify the main common.sh in out/ directory.
+
+# TODO
+# find all common.sh files under scripts/ and append them to one file:
+# common.sh which is written to out/ dir
+
+
+
+
+
+
+
+
+
+
+# make_nonexistent_symlink() {
+# 	local src="$1"
+# 	local dest="$2"
+# 	local file_found="n"
+# 
+# 	if [ -f "$src" ] ; then
+# 		file_found="y"
+# 	fi
+# 
+# 	if [ -d "$src" ] ; then
+# 		file_found="y"
+# 	fi
+# 
+# 	if [ "n" == "file_found" ] ; then
+# 		echo "No such file: $src"
+# 		exit 1
+# 	fi
+# 
+# 	if [ ! -h $dest ] ; then
+# 		ln -s $src $dest
+# 	fi
+# }
+# 
+# add_dir_path() {
+# 	local name="$1"
+# 	local path="$2"
+# 
+# 	assert_dir "$path" "${bold}$name${normal} not found."
+# 	echo "readonly $name=$path" >> $shared_vars_file
+# }
+# 
+# add_file_path() {
+# 	local name="$1"
+# 	local path="$2"
+# 
+# 	assert_file "$path" "${bold}$name${normal} not found."
+# 	echo "readonly $name=$path" >> $shared_vars_file
+# }
+# 
+# add_var() {
+# 	local name="$1"
+# 	local val="$2"
+# 
+# 	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
+# 	echo "readonly $name=$val" >> $shared_vars_file
+# }
+# 
+# add_str_var() {
+# 	local name="$1"
+# 	local val="$2"
+# 
+# 	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
+# 	echo "readonly $name=\"$val\"" >> $shared_vars_file
+# }
+
 
 #	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
 #
@@ -98,11 +150,6 @@ if [ "true" == "$add_bin_dir_to_path" ] ; then
 #		echo "$repo_envpath_entry" \
 #			>> $HOME/.profile
 #	fi
-fi
-
-echo "repo_root := $repo_root"  >> Makefile
-echo "home_dir := $HOME" >> Makefile
-cat Makefile.in >> Makefile
 
 
 
@@ -114,25 +161,12 @@ cat Makefile.in >> Makefile
 
 
 
-# TODO add own common.sh for every script. The content will be shared with
-# TODO all other scripts by adding content of every owned common.sh to the
-# TODO main common.sh in common/ directory.
-# TODO Only modify the main common.sh in out/ directory.
 
-# TODO
-# find all common.sh files under scripts/ and append them to one file:
-# common.sh which is written to out/ dir
-# then need to distribute symlink pointing to common.sh to all scripts
+
 
 # if [ ! -d "$HOME/.$repo_name" ] ; then
 # 	mkdir $HOME/.$repo_name
 # fi
-
-# TODO creation of out and code generation should be moved to make
-# cp -r scripts $out_dir
-
-# TODO remove usage of share_vars_file
-#echo -n "" > $shared_vars_file
 
 # Prepend repo_root to common.sh
 # echo -e "readonly repo_root=$repo_root $autoadd_comment" \
@@ -151,9 +185,6 @@ cat Makefile.in >> Makefile
 # 	cat Makefile >> tempmake.txt
 # 	cp tempmake.txt Makefile
 # fi
-
-# TODO Add configure file for each script. It should add variables relevant to
-# TODO that script. Then call every configure from this file.
 
 # add_dir_path "repo_root" $repo_root
 # add_dir_path "config_dir" $config_dir

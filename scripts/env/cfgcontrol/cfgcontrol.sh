@@ -2,18 +2,20 @@
 
 declare -r argc=$#
 declare -r -a argv=( "$@" )
-declare -r common_paths_file="./common/common_paths.sh"
+declare -r common_paths_file="./useful-files/common/common_paths"
 declare -r relative_script_dir=$( dirname $0 )
+
+# TODO add all the local keywords possible
+
+# TODO
+# add --nopathcheck -> implement path asserting for all needed paths and
+# switch option for disabling
 
 main() {
 	cd "$relative_script_dir"
 
 	if [ ! -f "$common_paths_file" ] ; then
-		echo "[ ERROR ] Include file common_paths.sh not found."
-		echo "Running configure script of useful-files should"
-		echo "generate this file. $(basename $0) is expected to be"
-		echo "ran by using file found from bin/ directory of"
-		echo "useful-files."
+		common_paths_not_found_print
 		exit 1
 	fi
 
@@ -48,11 +50,10 @@ do_clean() {
 	else
 		echo "Already clean"
 	fi
-
 }
 
 do_pull() {
-	echo Pulling tracked configuration files from project...
+	echo "Pulling tracked configuration files from project"
 
 	if [ ! -d $cfgcontrol_dir/backup ] ; then
 		mkdir $cfgcontrol_dir/backup
@@ -79,24 +80,16 @@ do_pull() {
 
 		cp $repo_config_path $local_config_path
 
-		debug_print ""
-		debug_print "Copied repo --> local"
-		debug_print "====================="
-		debug_print "local_path: $local_config_path"
-		debug_print "repo_path: $repo_config_path"
-		debug_print ""
+		debug_copying_print "repo" "local"
 
 		echo "Pulled $config_file_name"
 	done
 
-	echo -n "Backups of local configs have been written to "
-	echo "$cfgcontrol_dir/backup"
-	echo "Running ${bold}cfgcontrol clean${normal} will remove all "
-	echo "backups from $cfgcontrol_dir/backup"
+	tell_about_backing_local_configs
 }
 
 do_push() {
-	echo Pushing tracked configuration files to project...
+	echo "Pushing tracked configuration files to project"
 
 	extract_entries_from_files \
 		$config_list_file \
@@ -114,27 +107,24 @@ do_push() {
 
 		cp $local_config_path $repo_config_path
 
-		debug_print ""
-		debug_print "Copied local --> repo"
-		debug_print "====================="
-		debug_print "local_path: $local_config_path"
-		debug_print "repo_path: $repo_config_path"
-		debug_print ""
+		debug_copying_print "local" "repo"
 
 		echo "Pushed $config_file_name"
 	done
 }
 
+# TODO Add support for config files which are not dotfiles. Now only
+# files beginning with "." are searched from config/
 do_sync() {
-	echo "Updating project config list..."
+	echo "Updating project config list"
 
 	cp $config_list_file $old_config_list_file
 
 	# First add all repo config entries found from repo config directory
-	# Escaped parentheses save matched string to be used with \1
+	# Escaped parentheses save matched string for use with \1
 	ls -RA1 $config_dir \
 		| grep "^\." \
-		| xargs -I{} find $repo_root/config -name {} \
+		| xargs -I{} find $config_dir -name {} \
 		| sed -e 's/\(.*\)/repo:\1/g' \
 		> $config_list_file
 
@@ -193,7 +183,8 @@ do_sync() {
 		done
 
 		if [ -n "$path_to_insert" ] ; then
-			local_config_to_config_list $config_name $path_to_insert
+			local_config_to_config_list \
+				$config_name $path_to_insert
 		else
 			empty_local_config_to_config_list $config_name
 		fi
@@ -260,15 +251,12 @@ extract_entries_from_files() {
 
 	readonly repo_config_entry_amount=${#repo_config_entries[@]}
 
-	debug_print ""
-	debug_print "===== Config entries ====="
-	debug_print "Repo config entry amount is: $repo_config_entry_amount"
-	debug_print_array local_config_entries[@]
-	debug_print_array repo_config_entries[@]
-	debug_print ""
+	debug_config_entries_print
 }
 
 extract_vars_from_entries() {
+	# TODO pass i in as variable. current is just stupid. what the fuck :D
+
 	repo_entry=${repo_config_entries[$i]}
 	repo_config_path=$(echo $repo_entry | sed -e 's/repo://g')
 
