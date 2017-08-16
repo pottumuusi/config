@@ -2,7 +2,7 @@
 
 declare -r argc=$#
 declare -r -a argv=( "$@" )
-declare -r common_paths_file="./useful-files/common/common_paths"
+declare -r common_paths_file="./useful-files/common_paths"
 declare -r relative_script_dir=$( dirname $0 )
 
 # TODO add all the local keywords possible
@@ -65,7 +65,9 @@ do_pull() {
 
 	for i in $( seq 0 1 $(($repo_config_entry_amount - 1)) )
 	do
-		extract_vars_from_entries
+
+
+		vars_from_entries_at_index "$i"
 		debug_print "processing repo entry $repo_entry"
 
 		if [ -z "$local_config_path" ] ; then
@@ -97,7 +99,7 @@ do_push() {
 
 	for i in $( seq 0 1 $(($repo_config_entry_amount - 1)) )
 	do
-		extract_vars_from_entries
+		vars_from_entries_at_index "$i"
 		debug_print "processing repo entry $repo_entry"
 
 		if [ -z "$local_config_path" ] ; then
@@ -254,7 +256,8 @@ extract_entries_from_files() {
 	debug_config_entries_print
 }
 
-extract_vars_from_entries() {
+vars_from_entries_at_index() {
+	local i=$1
 	# TODO pass i in as variable. current is just stupid. what the fuck :D
 
 	repo_entry=${repo_config_entries[$i]}

@@ -1,6 +1,13 @@
+ECHO=@$$(which echo)
+
 all_targets := \
 	cfgcontrol \
 	scripts_common
+
+# TODO
+# Subprojects would not need to be added manually if a Makefile was to be
+# added to each directory level and calling all makefiles of all
+# subdirectories.
 
 # Subprojects are required to have their own Makefile
 # Each subproject is a directory
@@ -14,17 +21,33 @@ bin_dir := $(repo_root)/bin
 out_dir := $(repo_root)/out
 include_dir := $(repo_root)/include
 
-repo_name := useful-files
+REPO_NAME := useful-files
 GLOBAL_CFGCONTROL_LINK_PATH := /usr/local/bin/cfgcontrol
-REPO_ENVPATH_ENTRY := PATH=\"\$$HOME/.$(repo_name)/bin:\$$PATH\"
+REPO_ENVPATH_ENTRY := PATH=\"\$$HOME/.$(REPO_NAME)/bin:\$$PATH\"
 
-# TODO split me to multiple lines
-search_for_path_entry_in_subshell := "$$(cat $$HOME/.profile | grep "$$(echo $(REPO_ENVPATH_ENTRY))")"
+common_paths_link := common_paths
+processed_common_paths := $(bin_dir)/common/common_paths.sh
+home_repo_dir := $$HOME/.$(REPO_NAME)
+home_link_to_repo := $(home_repo_dir)/bin
+repo_bin_repo_dir := $(bin_dir)/$(REPO_NAME)
+repo_bin_common_paths := $(repo_bin_repo_dir)/$(common_paths_link)
+usr_local_bin_repo_dir := /usr/local/bin/$(REPO_NAME)
+usr_local_bin_common_paths := $(usr_local_bin_repo_dir)/$(common_paths_link)
 
-$(info home_dir is $(home_dir)) # removeme
+line_removed_tag := >>> line removed by $(REPO_NAME) uninstall process <<<
 
-# make does not consider implicit rules for PHONY targets
+search_for_path_entry_in_subshell := \
+	"$$(cat $$HOME/.profile | grep "$$(echo $(REPO_ENVPATH_ENTRY))")"
+
+#### make does not consider implicit rules for PHONY targets
 .PHONY: all clean install uninstall $(all_targets)
+
+#### Could not use pipe as delimiter so substituting first
+define remove_home_repo_dir_from_path
+	sed -i 's|'"$$(echo $(REPO_ENVPATH_ENTRY))"'|$(line_removed_tag)|' \
+		$$HOME/.profile
+	sed -i '/$(line_removed_tag)/d' $$HOME/.profile
+endef
 
 define subproject_make_with_common_attributes
 	$(eval subproject=$1)
@@ -40,23 +63,50 @@ define subproject_make_with_common_attributes
 endef
 
 define install_to_usr_local_bin
-	if [ ! -d "/usr/local/bin/useful-files/common" ] ; \
-		then mkdir -p /usr/local/bin/useful-files/common ; \
+	if [ ! -d "$(usr_local_bin_repo_dir)" ] ; then \
+		mkdir -p $(usr_local_bin_repo_dir) ; \
 	fi
 
-	# TODO test splitting to multiple rows and escaping newlines as usual
-	$(call add_nontexistent_symlink, $(bin_dir)/cfgcontrol, $(GLOBAL_CFGCONTROL_LINK_PATH))
-	$(call add_nontexistent_symlink, $(bin_dir)/common/common_paths.sh, /usr/local/bin/useful-files/common/common_paths)
+	$(call add_nontexistent_symlink, \
+		$(bin_dir)/cfgcontrol, $(GLOBAL_CFGCONTROL_LINK_PATH))
+	$(call add_nontexistent_symlink, \
+		$(processed_common_paths) \
+		$(usr_local_bin_common_paths))
 endef
 
+define usr_local_bin_uninstall
+	rm $(GLOBAL_CFGCONTROL_LINK_PATH)
+	rm -r $(usr_local_bin_repo_dir)
+endef
 
+# ifeq statements inside define blocks are treated as shell commands
 define install_to_home
 	$(eval envpath_entry_in_profile=$(shell \
-		if [ -n $(search_for_path_entry_in_subshell) ] \
-			; then echo "y" ; else echo "n" ; \
+		if [ -n $(search_for_path_entry_in_subshell) ] ; then \
+			echo "y" ; else echo "n" ; \
 		fi))
-	echo found in profile: $(envpath_entry_in_profile)
-	echo repo envpath entry is: $(REPO_ENVPATH_ENTRY)
+
+	if [ "n" = "$(envpath_entry_in_profile)" ] ; then \
+		if [ ! -d "$(home_repo_dir)" ] ; then \
+			mkdir -p $(home_repo_dir) ; \
+		fi ; \
+		if [ ! -d "$(repo_bin_repo_dir)" ] ; then \
+			mkdir -p $(repo_bin_repo_dir) ; \
+		fi ; \
+		ln -s \
+			$(processed_common_paths) \
+			$(repo_bin_common_paths) ; \
+		ln -s \
+			$(bin_dir) \
+			$(home_link_to_repo) ; \
+		echo "$(REPO_ENVPATH_ENTRY)" >> $$HOME/.profile ; \
+	fi
+endef
+
+define home_uninstall
+	rm -r $(home_repo_dir)
+	rm -r $(repo_bin_repo_dir)
+	$(call remove_home_repo_dir_from_path)
 endef
 
 #	$(eval envpath_entry_in_profile=$(shell \
@@ -76,7 +126,7 @@ endef
 
 #$(eval envpath_entry_in_profile=$(shell cat $HOME/.profile | grep "$(REPO_ENVPATH_ENTRY)"))
 
-# readonly repo_envpath_entry="PATH=\"\$HOME/.$repo_name/bin:\$PATH\""
+# readonly repo_envpath_entry="PATH=\"\$HOME/.$REPO_NAME/bin:\$PATH\""
 #	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
 #	if [ -z "$filtered_path" ] ; then
 #		echo "$repo_envpath_entry" \
@@ -94,7 +144,6 @@ define add_nontexistent_symlink
 	fi
 endef
 
-# ifeq statements inside define blocks are treated as shell commands
 define add_to_path_if_wanted
 	echo in add_to_env_path_if_wanted. add is: $(add_to_env_path)
 
@@ -116,6 +165,22 @@ define create_project_directories
 	if [ ! -d "$(bin_dir)" ] ; then mkdir $(bin_dir) ; fi
 	if [ ! -d "$(out_dir)" ] ; then mkdir $(out_dir) ; fi
 	if [ ! -d "$(data_dir)" ] ; then mkdir $(data_dir) ; fi
+endef
+
+define print_install_done
+	$(ECHO) ""
+	$(ECHO) "+==============+"
+	$(ECHO) "| INSTALL DONE |"
+	$(ECHO) "+==============+"
+	$(ECHO) ""
+endef
+
+define print_uninstall_done
+	$(ECHO) ""
+	$(ECHO) "+================+"
+	$(ECHO) "| UNINSTALL DONE |"
+	$(ECHO) "+================+"
+	$(ECHO) ""
 endef
 
 all: $(all_targets)
@@ -142,27 +207,32 @@ install:
 ifeq ($(add_to_env_path),true)
 ifeq ($(install_destination),home)
 	$(call install_to_home)
+ifeq ($(be_fancy),true)
+	$(call print_install_done)
+endif
+	$(ECHO) ""
+	$(ECHO) "Run \"source ~/.profile\" to add scripts to PATH without the"
+	$(ECHO) "need to open a new shell."
 endif
 ifeq ($(install_destination),usr_local_bin)
 	$(call install_to_usr_local_bin)
+ifeq ($(be_fancy),true)
+	$(call print_install_done)
+endif
 endif
 endif
 
 uninstall:
-	ifdef $(repo_envpath_entry)
-		$(info def is true)
-	else
-		$(info def is false)
-	endif
-	$(info filtered path is $(filtered_path))
-	ifeq ($(filtered_path),)
-		$(info filtered path is empty)
-	else
-		$(info filtered path is not empty)
-	endif
-	$(info not implemented)
-	# remove stuff created in install
-#	TODO remove entry to home dir
-#	if [ ! -h "$(home_dir)/.$(repo_name)/bin" ] ; then \
-#		ln -s $(bin_dir) $(home_dir)/.$(repo_name)/bin \
-#	fi
+ifeq ($(add_to_env_path),true)
+ifeq ($(install_destination),home)
+	$(call home_uninstall)
+endif
+ifeq ($(install_destination),usr_local_bin)
+	$(call usr_local_bin_uninstall)
+endif
+endif
+ifeq ($(be_fancy),true)
+	$(call print_uninstall_done)
+endif
+	$(ECHO) "Run \"source ~/.profile\" to remove directories related to"
+	$(ECHO) "$(REPO_NAME) from PATH without the need to open a new shell."

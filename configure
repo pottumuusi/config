@@ -1,11 +1,20 @@
 #!/bin/bash
 
+readonly argv=("$@")
+readonly argc=$#
 readonly relative_repo_root=$( dirname $0 )
 cd $relative_repo_root
 
 # TODO rename scripts/ to src/
 
+# TODO
+# Special handling for help option. If -h or --help is found in the invoking
+# command then do not handle any other arguments.
+# Example error case: --nopath --help
+# Solution: grep the invoking line for -h or --help
+
 repo_root=$(pwd)
+be_fancy="false"
 add_bin_dir_to_path="true"
 install_destination="usr_local_bin"
 
@@ -20,7 +29,9 @@ print_help_and_exit() {
 
 Usage: configure [OPTION]
 
-Configure ${bold}useful-files${normal} for installation and use
+Configure ${bold}useful-files${normal} for installation and use.
+
+By default will add to install under /usr/local/bin
 
 ===== OPTIONS =====
 -h, --help			show this help message
@@ -34,24 +45,58 @@ EOF
 	exit 0
 }
 
-# TODO print help when encountering unknown option
-for arg in "$@"
-do
-	case "$arg" in
-		--help)
+handle_arg() {
+	local arg="$1"
+
+	if [ "--help" == "$arg" ] ; then
+		print_help_and_exit
+	fi
+
+	if [ "--fancy" == "$arg" ] ; then
+		be_fancy="true"
+		return 0
+	fi
+
+	if [ "--nopath" == "$arg" ] ; then
+		add_bin_dir_to_path="false"
+		return 0
+	fi
+
+	if [ "--install-under=usr-local-bin" == "$arg" ] ; then
+		install_destination="usr_local_bin"
+		return 0
+	fi
+
+	if [ "--install-under=home" == "$arg" ] ; then
+		install_destination="home"
+		return 0
+	fi
+
+	return 1
+}
+
+handle_all_args() {
+	if [ "0" -eq "$argc" ] ; then
+		install_destination="usr_local_bin"
+		return 0
+	fi
+
+	for i in $( seq 0 1 $(($argc - 1)) )
+	do
+		handle_arg ${argv[$i]}
+		local success="$?"
+
+		if [ "1" -eq "$success" ] ; then
+			echo ""
+			print_error_line "Argument not found: $arg"
 			print_help_and_exit
-			;;
-		--nopath)
-			add_bin_dir_to_path="false"
-			;;
-		--install-under=usr-local-bin)
-			install_destination="usr_local_bin"
-			;;
-		--install-under=home)
-			install_destination="home"
-			;;
-	esac
-done
+		fi
+	done
+
+	return 0
+}
+
+handle_all_args
 
 assert_file "Makefile.in" "${bold}$name${normal} not found."
 
@@ -62,6 +107,7 @@ touch Makefile
 
 echo "add_to_env_path := $add_bin_dir_to_path" >> Makefile
 echo "install_destination := $install_destination" >> Makefile
+echo "be_fancy := $be_fancy" >> Makefile
 
 echo Install destination is: $install_destination
 

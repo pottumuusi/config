@@ -38,7 +38,16 @@ assert_file() {
 exit_with_error() {
 	local err_text="$1"
 
-	echo -e "[ ERROR ] $err_text"
+	print_error_line "$err_text"
 	echo "Stopping..."
 	exit 1
+}
+
+# TODO
+# when include guards have been implemented include file with __bold__
+# variable to make ERROR bold
+print_error_line() {
+	local err_text="$1"
+
+	echo "[ ERROR ] $err_text"
 }
