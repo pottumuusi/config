@@ -107,13 +107,6 @@ define add_nontexistent_symlink
 	fi
 endef
 
-define add_to_path_if_wanted
-	echo in add_to_env_path_if_wanted. add is: $(add_to_env_path)
-
-	if [ "true" == "$(add_to_env_path)" ] ; then \
-	fi
-endef
-
 define create_project_directories
 	if [ ! -d "$(DATA_DIR)" ] ; then mkdir $(DATA_DIR) ; fi
 endef
@@ -137,8 +130,8 @@ endef
 all: $(ALL_TARGETS)
 
 clean:
-	rm -r $(OUT_DIR)
-	rm -r $(BIN_DIR)
+	if [ -d "$(OUT_DIR)" ] ; then rm -r $(OUT_DIR) ; fi
+	if [ -d "$(BIN_DIR)" ] ; then rm -r $(BIN_DIR) ; fi
 
 # Append slash to avoid circular common
 common: common/ 
