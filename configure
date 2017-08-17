@@ -93,6 +93,7 @@ handle_all_args
 assert_file "Makefile" "${bold}Makefile${normal} not found."
 
 echo "Creating makefile(s)"
+echo Install destination is: $install_destination
 
 if [ -f "src/Makefile" ] ; then rm src/Makefile ; fi
 touch src/Makefile
@@ -100,9 +101,6 @@ touch src/Makefile
 echo "add_to_env_path := $add_bin_dir_to_path" >> src/Makefile
 echo "install_destination := $install_destination" >> src/Makefile
 echo "be_fancy := $be_fancy" >> src/Makefile
-
-echo Install destination is: $install_destination
-
 echo "repo_root := $repo_root"  >> src/Makefile
 echo "home_dir := $HOME" >> src/Makefile
 cat src/Makefile.in >> src/Makefile
