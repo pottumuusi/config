@@ -43,9 +43,6 @@ exit_with_error() {
 	exit 1
 }
 
-# TODO
-# when include guards have been implemented include file with __bold__
-# variable to make ERROR bold
 print_error_line() {
 	local err_text="$1"
 

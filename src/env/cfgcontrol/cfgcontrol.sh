@@ -2,30 +2,21 @@
 
 declare -r argc=$#
 declare -r -a argv=( "$@" )
-declare -r common_paths_file="./useful-files/common_paths"
+declare -r common_paths_file="useful-files/common_paths"
 declare -r relative_script_dir=$( dirname $0 )
-
-# TODO add all the local keywords possible
-
-# TODO
-# add --nopathcheck -> implement path asserting for all needed paths and
-# switch option for disabling
 
 main() {
 	cd "$relative_script_dir"
 
-	if [ ! -f "$common_paths_file" ] ; then
+	if [ ! -f "$common_paths_file" -a ! -h "$common_paths_file" ] ; then
 		common_paths_not_found_print
 		exit 1
 	fi
 
-	# TODO add include guards to all script files which might be sourced.
-	# Make include function which will keep track of already sourced
-	# script files. Previously unsourced files need to be sourced.
-
 	. $common_paths_file
 	. $cfgcontrol_dir/arg.sh
 	. $cfgcontrol_dir/print.sh
+	. $cfgcontrol_dir/cfgcontrol_debug.sh
 	. $bash_include_dir/interact.sh
 	. $bash_include_dir/assert.sh
 	. $bash_include_dir/debug.sh
@@ -39,16 +30,34 @@ main() {
 	fi
 }
 
+common_paths_not_found_print() {
+
+# Needed files are not sourced at this point of execution. Thus i.e. bold
+# variable can't be used.
+
+	cat <<EOF
+
+[ ERROR ] Include file common_paths.sh not found.
+
+Running configure script and "make install" should generate this file.
+cfgcontrol expects to be ran by using file found from bin/ directory of
+useful-files.
+EOF
+}
+
 do_clean() {
 	local dir_to_remove="$cfgcontrol_dir/backup"
 
-	if [ -d "$dir_to_remove" ] ; then
-		local answer=$(get_yes_no \
-			"Recursively remove $dir_to_remove?")
-
-		rm -vrf $dir_to_remove
-	else
+	if [ ! -d "$dir_to_remove" ] ; then
 		echo "Already clean"
+		return 0
+	fi
+
+	local answer=$(get_yes_no \
+		"Recursively remove $dir_to_remove?")
+
+	if [ "y" == "$answer" ] ; then
+		rm -vrf $dir_to_remove
 	fi
 }
 
@@ -65,8 +74,6 @@ do_pull() {
 
 	for i in $( seq 0 1 $(($repo_config_entry_amount - 1)) )
 	do
-
-
 		vars_from_entries_at_index "$i"
 		debug_print "processing repo entry $repo_entry"
 
@@ -115,8 +122,6 @@ do_push() {
 	done
 }
 
-# TODO Add support for config files which are not dotfiles. Now only
-# files beginning with "." are searched from config/
 do_sync() {
 	echo "Updating project config list"
 
@@ -194,7 +199,7 @@ do_sync() {
 }
 
 empty_local_config_to_config_list() {
-	config_name=$1
+	local config_name=$1
 
 	sed -i \
 		's|\(.*'"$config_name"'$\)|\1\nlocal:|g' \
@@ -206,8 +211,8 @@ empty_local_config_to_config_list() {
 }
 
 local_config_to_config_list() {
-	config_name=$1
-	path=$2
+	local config_name=$1
+	local path=$2
 
 	sed -i \
 		's|\(.*'"$config_name"'$\)|\1\nlocal:'"$path"'|g' \
@@ -215,10 +220,10 @@ local_config_to_config_list() {
 }
 
 local_config_in() {
-	tested_config=$1
+	local tested_config=$1
 	declare -a matching_list=("${!2}")
 
-	did_match="n"
+	local did_match="n"
 
 	for matcher in ${matching_list[@]}
 	do
@@ -229,10 +234,10 @@ local_config_in() {
 			continue
 		fi
 
-		matcher_name=$( basename $matcher )
+		local matcher_name=$( basename $matcher )
 
 		if [ "$tested_config" == "$matcher_name" ] ; then
-			did_match="y"
+			local did_match="y"
 			break
 		fi
 	done
@@ -241,8 +246,8 @@ local_config_in() {
 }
 
 extract_entries_from_files() {
-	local_list_path=$1
-	repo_list_path=$2
+	local local_list_path=$1
+	local repo_list_path=$2
 
 	# -g (global) option of _declare_ is for bash 4.2 and above
 	declare -r -a -g local_config_entries=($(cat $local_list_path \
@@ -258,7 +263,6 @@ extract_entries_from_files() {
 
 vars_from_entries_at_index() {
 	local i=$1
-	# TODO pass i in as variable. current is just stupid. what the fuck :D
 
 	repo_entry=${repo_config_entries[$i]}
 	repo_config_path=$(echo $repo_entry | sed -e 's/repo://g')

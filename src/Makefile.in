@@ -1,0 +1,183 @@
+ECHO=@$$(which echo)
+
+ALL_TARGETS := \
+	cfgcontrol \
+	common
+
+# Some variables including repo_root are added by configure to actual
+# Makefile.  They should all be in lower case.
+DATA_DIR := $(repo_root)/data
+BIN_DIR := $(repo_root)/bin
+OUT_DIR := $(repo_root)/out
+
+REPO_NAME := useful-files
+GLOBAL_CFGCONTROL_LINK_PATH := /usr/local/bin/cfgcontrol
+REPO_ENVPATH_ENTRY := PATH=\"\$$HOME/.$(REPO_NAME)/bin:\$$PATH\"
+
+COMMON_PATHS_LINK := common_paths
+PROCESSED_COMMON_PATHS := $(BIN_DIR)/common/common_paths.sh
+HOME_REPO_DIR := $$HOME/.$(REPO_NAME)
+HOME_LINK_TO_REPO := $(HOME_REPO_DIR)/bin
+REPO_BIN_REPO_DIR := $(BIN_DIR)/$(REPO_NAME)
+REPO_BIN_COMMON_PATHS := $(REPO_BIN_REPO_DIR)/$(COMMON_PATHS_LINK)
+USR_LOCAL_BIN_REPO_DIR := /usr/local/bin/$(REPO_NAME)
+USR_LOCAL_BIN_COMMON_PATHS := $(USR_LOCAL_BIN_REPO_DIR)/$(COMMON_PATHS_LINK)
+
+LINE_REMOVED_TAG := >>> line removed by $(REPO_NAME) uninstall process <<<
+
+SEARCH_FOR_PATH_ENTRY_IN_SUBSHELL := \
+	"$$(cat $$HOME/.profile | grep "$$(echo $(REPO_ENVPATH_ENTRY))")"
+
+# Make does not consider implicit rules for PHONY targets
+.PHONY: all clean install uninstall $(ALL_TARGETS)
+
+# Could not use pipe as delimiter so substituting first
+define remove_home_repo_dir_from_path
+	sed -i 's|'"$$(echo $(REPO_ENVPATH_ENTRY))"'|$(LINE_REMOVED_TAG)|' \
+		$$HOME/.profile
+	sed -i '/$(LINE_REMOVED_TAG)/d' $$HOME/.profile
+endef
+
+define subproject_make_with_common_attributes
+	$(eval SUBPROJECT=$1)
+	$(eval PROJECT_OUT=$(OUT_DIR)/$(SUBPROJECT))
+
+	if [ ! -d $(PROJECT_OUT) ] ; then mkdir -p $(PROJECT_OUT) ; fi
+	if [ ! -d $(BIN_DIR) ] ; then mkdir -p $(BIN_DIR) ; fi
+
+	$(MAKE) -C $(SUBPROJECT) \
+		REPOROOT=$(repo_root) \
+		BINDIR=$(BIN_DIR) \
+		PROJECTOUT=$(PROJECT_OUT) \
+		all
+endef
+
+define install_to_usr_local_bin
+	if [ ! -d "$(USR_LOCAL_BIN_REPO_DIR)" ] ; then \
+		mkdir -p $(USR_LOCAL_BIN_REPO_DIR) ; \
+	fi
+
+	$(call add_nontexistent_symlink, \
+		$(BIN_DIR)/cfgcontrol, $(GLOBAL_CFGCONTROL_LINK_PATH))
+	$(call add_nontexistent_symlink, \
+		$(PROCESSED_COMMON_PATHS) \
+		$(USR_LOCAL_BIN_COMMON_PATHS))
+endef
+
+define usr_local_bin_uninstall
+	rm $(GLOBAL_CFGCONTROL_LINK_PATH)
+	rm -r $(USR_LOCAL_BIN_REPO_DIR)
+endef
+
+# ifeq statements inside define blocks are treated as shell commands
+define install_to_home
+	$(eval ENVPATH_ENTRY_IN_PROFILE=$(shell \
+		if [ -n $(SEARCH_FOR_PATH_ENTRY_IN_SUBSHELL) ] ; then \
+			echo "y" ; else echo "n" ; \
+		fi))
+
+	if [ "n" = "$(ENVPATH_ENTRY_IN_PROFILE)" ] ; then \
+		if [ ! -d "$(HOME_REPO_DIR)" ] ; then \
+			mkdir -p $(HOME_REPO_DIR) ; \
+		fi ; \
+		if [ ! -d "$(REPO_BIN_REPO_DIR)" ] ; then \
+			mkdir -p $(REPO_BIN_REPO_DIR) ; \
+		fi ; \
+		ln -s \
+			$(PROCESSED_COMMON_PATHS) \
+			$(REPO_BIN_COMMON_PATHS) ; \
+		ln -s \
+			$(BIN_DIR) \
+			$(HOME_LINK_TO_REPO) ; \
+		echo "$(REPO_ENVPATH_ENTRY)" >> $$HOME/.profile ; \
+	fi
+endef
+
+define home_uninstall
+	rm -r $(HOME_REPO_DIR)
+	$(call remove_home_repo_dir_from_path)
+endef
+
+define add_nontexistent_symlink
+	$(eval DESTINATION=$(1))
+	$(eval PATH_TO_NEW_LINK=$(2))
+
+	if [ ! -h "$(PATH_TO_NEW_LINK)" ] ; then \
+		ln -s $(DESTINATION) $(PATH_TO_NEW_LINK); \
+	fi
+endef
+
+define add_to_path_if_wanted
+	echo in add_to_env_path_if_wanted. add is: $(add_to_env_path)
+
+	if [ "true" == "$(add_to_env_path)" ] ; then \
+	fi
+endef
+
+define create_project_directories
+	if [ ! -d "$(DATA_DIR)" ] ; then mkdir $(DATA_DIR) ; fi
+endef
+
+define print_install_done
+	$(ECHO) ""
+	$(ECHO) "+==============+"
+	$(ECHO) "| INSTALL DONE |"
+	$(ECHO) "+==============+"
+	$(ECHO) ""
+endef
+
+define print_uninstall_done
+	$(ECHO) ""
+	$(ECHO) "+================+"
+	$(ECHO) "| UNINSTALL DONE |"
+	$(ECHO) "+================+"
+	$(ECHO) ""
+endef
+
+all: $(ALL_TARGETS)
+
+clean:
+	rm -r $(OUT_DIR)
+	rm -r $(BIN_DIR)
+
+# Append slash to avoid circular common
+common: common/ 
+	$(call subproject_make_with_common_attributes, $@)
+
+cfgcontrol: env/cfgcontrol
+	$(call subproject_make_with_common_attributes, $^)
+
+install:
+	$(call create_project_directories)
+ifeq ($(add_to_env_path),true)
+ifeq ($(install_destination),home)
+	$(call install_to_home)
+ifeq ($(be_fancy),true)
+	$(call print_install_done)
+endif
+	$(ECHO) ""
+	$(ECHO) "Run \"source ~/.profile\" to add scripts to PATH without"
+	$(ECHO) "the need to open a new shell."
+endif
+ifeq ($(install_destination),usr_local_bin)
+	$(call install_to_usr_local_bin)
+ifeq ($(be_fancy),true)
+	$(call print_install_done)
+endif
+endif
+endif
+
+uninstall:
+ifeq ($(add_to_env_path),true)
+ifeq ($(install_destination),home)
+	$(call home_uninstall)
+endif
+ifeq ($(install_destination),usr_local_bin)
+	$(call usr_local_bin_uninstall)
+endif
+endif
+ifeq ($(be_fancy),true)
+	$(call print_uninstall_done)
+endif
+	$(ECHO) "Run \"source ~/.profile\" to remove directories related to"
+	$(ECHO) "$(REPO_NAME) from PATH without the need to open a new shell."

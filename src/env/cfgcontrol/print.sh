@@ -41,23 +41,10 @@ EOF
 
 tell_about_backing_local_configs() {
 	cat <<EOF
+
 Backups of local configs have been written to $cfgcontrol_dir/backup
 
-Running ${bold}cfgcontrol clean${normal} will remove all backups from
-$cfgcontrol_dir/backup
-EOF
-}
-
-common_paths_not_found_print() {
-
-# Needed files are not sourced at this point of execution. Thus i.e. bold
-# variable can't be used.
-
-	cat <<EOF
-
-[ ERROR ] Include file common_paths.sh not found.
-
-Running configure script of useful-files should generate this file. cfgcontrol
-is expected to be ran by using file found from bin/ directory of useful-files.
+Backups can be removed from $cfgcontrol_dir/backup manually or by running
+the command: ${bold}cfgcontrol clean${normal}.
 EOF
 }

@@ -5,20 +5,12 @@ readonly argc=$#
 readonly relative_repo_root=$( dirname $0 )
 cd $relative_repo_root
 
-# TODO rename scripts/ to src/
-
-# TODO
-# Special handling for help option. If -h or --help is found in the invoking
-# command then do not handle any other arguments.
-# Example error case: --nopath --help
-# Solution: grep the invoking line for -h or --help
-
 repo_root=$(pwd)
 be_fancy="false"
 add_bin_dir_to_path="true"
 install_destination="usr_local_bin"
 
-readonly commonsh_full_path="$repo_root/scripts/common/common_paths.sh"
+readonly commonsh_full_path="$repo_root/src/common/common_paths.sh"
 
 . $commonsh_full_path
 . $bash_include_dir/assert.sh
@@ -98,172 +90,19 @@ handle_all_args() {
 
 handle_all_args
 
-assert_file "Makefile.in" "${bold}$name${normal} not found."
+assert_file "Makefile" "${bold}Makefile${normal} not found."
 
 echo "Creating makefile(s)"
 
-if [ -f "Makefile" ] ; then rm Makefile ; fi
-touch Makefile
+if [ -f "src/Makefile" ] ; then rm src/Makefile ; fi
+touch src/Makefile
 
-echo "add_to_env_path := $add_bin_dir_to_path" >> Makefile
-echo "install_destination := $install_destination" >> Makefile
-echo "be_fancy := $be_fancy" >> Makefile
+echo "add_to_env_path := $add_bin_dir_to_path" >> src/Makefile
+echo "install_destination := $install_destination" >> src/Makefile
+echo "be_fancy := $be_fancy" >> src/Makefile
 
 echo Install destination is: $install_destination
 
-echo "repo_root := $repo_root"  >> Makefile
-echo "home_dir := $HOME" >> Makefile
-cat Makefile.in >> Makefile
-
-# TODO
-# add own common.sh for every script. The content will be shared with
-# all other scripts by adding content of every owned common.sh to the
-# main common.sh in common/ directory in build time.
-# Only modify the main common.sh in out/ directory.
-
-# TODO
-# find all common.sh files under scripts/ and append them to one file:
-# common.sh which is written to out/ dir
-
-
-
-
-
-
-
-
-
-
-# make_nonexistent_symlink() {
-# 	local src="$1"
-# 	local dest="$2"
-# 	local file_found="n"
-# 
-# 	if [ -f "$src" ] ; then
-# 		file_found="y"
-# 	fi
-# 
-# 	if [ -d "$src" ] ; then
-# 		file_found="y"
-# 	fi
-# 
-# 	if [ "n" == "file_found" ] ; then
-# 		echo "No such file: $src"
-# 		exit 1
-# 	fi
-# 
-# 	if [ ! -h $dest ] ; then
-# 		ln -s $src $dest
-# 	fi
-# }
-# 
-# add_dir_path() {
-# 	local name="$1"
-# 	local path="$2"
-# 
-# 	assert_dir "$path" "${bold}$name${normal} not found."
-# 	echo "readonly $name=$path" >> $shared_vars_file
-# }
-# 
-# add_file_path() {
-# 	local name="$1"
-# 	local path="$2"
-# 
-# 	assert_file "$path" "${bold}$name${normal} not found."
-# 	echo "readonly $name=$path" >> $shared_vars_file
-# }
-# 
-# add_var() {
-# 	local name="$1"
-# 	local val="$2"
-# 
-# 	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
-# 	echo "readonly $name=$val" >> $shared_vars_file
-# }
-# 
-# add_str_var() {
-# 	local name="$1"
-# 	local val="$2"
-# 
-# 	assert_nonempty_str "$val" "${bold}$name${normal} is empty."
-# 	echo "readonly $name=\"$val\"" >> $shared_vars_file
-# }
-
-
-#	filtered_path="$(cat $HOME/.profile | grep "$repo_envpath_entry")"
-#
-#	if [ -z "$filtered_path" ] ; then
-#		echo "$repo_envpath_entry" \
-#			>> $HOME/.profile
-#	fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# if [ ! -d "$HOME/.$repo_name" ] ; then
-# 	mkdir $HOME/.$repo_name
-# fi
-
-# Prepend repo_root to common.sh
-# echo -e "readonly repo_root=$repo_root $autoadd_comment" \
-#	> temp_common.txt
-# echo -e "$autoadd_comment\ndata_dir=$data_dir" \
-# 	>> temp_common.txt
-# echo -e "$autoadd_comment\nshared_vars_file=$shared_vars_file" \
-# 	>> temp_common.txt
-
-# cat $scripts_common_file >> temp_common.txt
-# cp temp_common.txt $scripts_common_out_file
-# rm temp_common.txt
-
-# if [ -z "$(grep "repo_root =" Makefile)" ] ; then
-# 	echo "repo_root = \"$repo_root\""  > tempmake.txt
-# 	cat Makefile >> tempmake.txt
-# 	cp tempmake.txt Makefile
-# fi
-
-# add_dir_path "repo_root" $repo_root
-# add_dir_path "config_dir" $config_dir
-# add_dir_path "bin_dir" $bin_dir
-# add_dir_path "data_dir" $data_dir
-# add_dir_path "include_dir" $include_dir
-# add_dir_path "bash_include_dir" $bash_include_dir
-# add_dir_path "cfgcongrol_dir" $cfgcongrol_dir
-# 
-# add_file_path "config_list_file" $config_list_file
-# add_file_path "old_config_list_file" $old_config_list_file
-# add_file_path "cfgcontrol_main_file" $cfgcontrol_main_file
-# 
-# add_var "bold" $bold
-# add_var "normal" $normal
-# add_var "repo_name" $repo_name
-
-# Add common behavior to beginning of to all main files of scripts.
-# echo "Adding sourcing of common.sh"
-# sed -i \
-# 	's|\('"$bash_interpreter_spec"'\)|\1'"$insert_common"'|g' \
-# 	$cfgcontrol_out_main_file
-
-# make_nonexistent_symlink \
-#	$scripts_common_out_file \
-#	$bin_dir/common
-
-# make_nonexistent_symlink \
-# 	$cfgcontrol_out_main_file \
-#  	$bin_dir/cfgcontrol
-
-# make_nonexistent_symlink \
-#	$bin_dir \
-#	$HOME/.$repo_name/bin
-
-
+echo "repo_root := $repo_root"  >> src/Makefile
+echo "home_dir := $HOME" >> src/Makefile
+cat src/Makefile.in >> src/Makefile
