@@ -1,0 +1,50 @@
+# TODO finish ./configure help print
+
+# TODO change include dir to $include_dir/bash
+
+# TODO move non-path variables to another common sh from common_paths.sh
+
+# TODO
+# Special handling for help option. If -h or --help is found in the invoking
+# command then do not handle any other arguments.
+# Example error case: --nopath --help
+# Solution: grep the invoking line for -h or --help
+
+# TODO
+# Add own common.sh for every script. The content will be shared with
+# all other scripts by adding content of every owned common.sh to the
+# main common.sh in common/ directory in build time.
+# Only modify the main common.sh in out/ directory.
+# Find all common.sh files under src/ and append them to one file:
+# common.sh which is written to out/ dir.
+
+# TODO remove leading dot from pulled files
+
+# TODO add option for silencing hint messages
+
+# TODO
+# add --nopathcheck
+# implement path asserting for all needed paths and
+# switch option for disabling.
+
+# TODO
+# add include guards to all script files which might be sourced.
+# Make include function which will keep track of already sourced
+# script files. Previously unsourced files need to be sourced.
+
+# TODO
+# Add support for config files which are not dotfiles. Now only
+# files beginning with "." are searched from config/
+
+# TODO
+# Add examples for use cases to README
+
+# TODO
+# when include guards have been implemented include file with __bold__
+# variable to include/.../assert.sh in order to make ERROR in
+print_error_line bold.
+
+# TODO
+# In Makefile the subprojects (listed in ALL_TARGETS) would not need to be
+# added manually if a Makefile was to be added to each directory level and
+# calling all makefiles of all subdirectories.
