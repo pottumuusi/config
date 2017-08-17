@@ -4,6 +4,10 @@
 
 # TODO move non-path variables to another common sh from common_paths.sh
 
+# TODO Update install instructions of README
+
+# TODO Add examples for use cases to README
+
 # TODO
 # Special handling for help option. If -h or --help is found in the invoking
 # command then do not handle any other arguments.
@@ -35,9 +39,6 @@
 # TODO
 # Add support for config files which are not dotfiles. Now only
 # files beginning with "." are searched from config/
-
-# TODO
-# Add examples for use cases to README
 
 # TODO
 # when include guards have been implemented include file with __bold__
