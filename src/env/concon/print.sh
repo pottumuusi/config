@@ -1,7 +1,7 @@
 print_help_and_exit() {
 	cat <<EOF
 
-Usage: cfgcontrol [OPTION] ACTION
+Usage: concon [OPTION] ACTION
 
 Copy configuration files to/from dedicated configuration directory.
 
@@ -42,9 +42,14 @@ EOF
 tell_about_backing_local_configs() {
 	cat <<EOF
 
-Backups of local configs have been written to $cfgcontrol_dir/backup
+Backups of local configs have been written to $concon_dir/backup
 
-Backups can be removed from $cfgcontrol_dir/backup manually or by running
-the command: ${bold}cfgcontrol clean${normal}.
+Backups can be removed from $concon_dir/backup manually or by running
+the command: ${bold}concon clean${normal}.
 EOF
+}
+
+print_version_and_exit() {
+	echo "$concon_program_version"
+	exit
 }

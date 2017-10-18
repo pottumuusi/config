@@ -1,7 +1,7 @@
 ECHO=@$$(which echo)
 
 ALL_TARGETS := \
-	cfgcontrol \
+	concon \
 	common
 
 # Some variables including repo_root are added by configure to actual
@@ -11,7 +11,7 @@ BIN_DIR := $(repo_root)/bin
 OUT_DIR := $(repo_root)/out
 
 REPO_NAME := useful-files
-GLOBAL_CFGCONTROL_LINK_PATH := /usr/local/bin/cfgcontrol
+GLOBAL_CONCON_LINK_PATH := /usr/local/bin/concon
 REPO_ENVPATH_ENTRY := PATH=\"\$$HOME/.$(REPO_NAME)/bin:\$$PATH\"
 
 COMMON_PATHS_LINK := common_paths
@@ -58,14 +58,14 @@ define install_to_usr_local_bin
 	fi
 
 	$(call add_nontexistent_symlink, \
-		$(BIN_DIR)/cfgcontrol, $(GLOBAL_CFGCONTROL_LINK_PATH))
+		$(BIN_DIR)/concon, $(GLOBAL_CONCON_LINK_PATH))
 	$(call add_nontexistent_symlink, \
 		$(PROCESSED_COMMON_PATHS) \
 		$(USR_LOCAL_BIN_COMMON_PATHS))
 endef
 
 define usr_local_bin_uninstall
-	rm $(GLOBAL_CFGCONTROL_LINK_PATH)
+	rm $(GLOBAL_CONCON_LINK_PATH)
 	rm -r $(USR_LOCAL_BIN_REPO_DIR)
 endef
 
@@ -137,7 +137,7 @@ clean:
 common: common/ 
 	$(call subproject_make_with_common_attributes, $@)
 
-cfgcontrol: env/cfgcontrol
+concon: env/concon
 	$(call subproject_make_with_common_attributes, $^)
 
 install:

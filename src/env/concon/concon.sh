@@ -17,6 +17,10 @@ main() {
 	. $cfgcontrol_dir/arg.sh
 	. $cfgcontrol_dir/print.sh
 	. $cfgcontrol_dir/cfgcontrol_debug.sh
+	. $concon_dir/config.sh # TODO rename me
+	. $concon_dir/arg.sh
+	. $concon_dir/print.sh
+	. $concon_dir/concon_debug.sh
 	. $bash_include_dir/interact.sh
 	. $bash_include_dir/assert.sh
 	. $bash_include_dir/debug.sh
@@ -40,13 +44,13 @@ common_paths_not_found_print() {
 [ ERROR ] Include file common_paths.sh not found.
 
 Running configure script and "make install" should generate this file.
-cfgcontrol expects to be ran by using file found from bin/ directory of
+concon expects to be ran by using file found from bin/ directory of
 useful-files.
 EOF
 }
 
 do_clean() {
-	local dir_to_remove="$cfgcontrol_dir/backup"
+	local dir_to_remove="$concon_dir/backup"
 
 	if [ ! -d "$dir_to_remove" ] ; then
 		echo "Already clean"
@@ -64,8 +68,8 @@ do_clean() {
 do_pull() {
 	echo "Pulling tracked configuration files from project"
 
-	if [ ! -d $cfgcontrol_dir/backup ] ; then
-		mkdir $cfgcontrol_dir/backup
+	if [ ! -d $concon_dir/backup ] ; then
+		mkdir $concon_dir/backup
 	fi
 
 	extract_entries_from_files \
@@ -84,7 +88,7 @@ do_pull() {
 
 		cp \
 			$local_config_path \
-			$cfgcontrol_dir/backup/$config_file_name-$(date \
+			$concon_dir/backup/$config_file_name-$(date \
 				-Iseconds)
 
 		cp $repo_config_path $local_config_path

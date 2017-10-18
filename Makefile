@@ -1,6 +1,6 @@
 ALL_SUBPROJECTS := \
 	common \
-	cfgcontrol
+	concon
 
 ALL_SUBMAKE_DIRECTORIES := \
 	src
@@ -22,7 +22,7 @@ clean:
 common:
 	$(call call_subproject_makefiles, $@)
 
-cfgcontrol:
+concon:
 	$(call call_subproject_makefiles, $@)
 
 install:

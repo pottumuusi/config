@@ -1,6 +1,6 @@
 SRC = $(wildcard *.sh)
 
-PROJECT_MAIN = cfgcontrol.sh
+PROJECT_MAIN = concon.sh
 
 # Substitute .sh with empty.
 EXE_NAME := $(PROJECT_MAIN:.sh=)
