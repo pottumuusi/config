@@ -1,7 +1,3 @@
-readonly repo_root="/root/my/config/useful-files"
-# Rows containing [RMTAG] will be deleted from resulting out file.
-# [RMTAG] $repo_root will be added by make to resulting out file.
-
 readonly bin_dir="$repo_root/bin"
 readonly data_dir="$repo_root/data"
 readonly config_dir="$repo_root/config"

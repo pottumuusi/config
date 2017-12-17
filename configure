@@ -6,13 +6,17 @@ readonly relative_repo_root=$( dirname $0 )
 cd $relative_repo_root
 
 repo_root=$(pwd)
-be_fancy="false"
-add_bin_dir_to_path="true"
 install_destination="usr_local_bin"
 
 readonly commonsh_full_path="$repo_root/src/common/common_paths.sh"
+readonly gen_commonsh_full_path="$repo_root/src/common/gen_common_paths.sh"
 
-. $commonsh_full_path
+echo "readonly repo_root=\""$repo_root"\"" > \
+	$gen_commonsh_full_path
+echo "" >> $gen_commonsh_full_path
+cat $commonsh_full_path >> $gen_commonsh_full_path
+
+. $gen_commonsh_full_path
 . $bash_include_dir/assert.sh
 . $bash_include_dir/interact.sh
 
@@ -27,8 +31,8 @@ By default will add to install under /usr/local/bin
 
 ===== OPTIONS =====
 -h, --help			show this help message
---nopath			<desc>
---install-under=LOCATION	<desc>
+--install-under=LOCATION	Select destination for files which are used
+				to make globally available on your system.
 				LOCATION is one of the following:
 					${bold}usr-local-bin${normal}
 					${bold}home${normal}
@@ -42,16 +46,6 @@ handle_arg() {
 
 	if [ "--help" == "$arg" ] ; then
 		print_help_and_exit
-	fi
-
-	if [ "--fancy" == "$arg" ] ; then
-		be_fancy="true"
-		return 0
-	fi
-
-	if [ "--nopath" == "$arg" ] ; then
-		add_bin_dir_to_path="false"
-		return 0
 	fi
 
 	if [ "--install-under=usr-local-bin" == "$arg" ] ; then
@@ -98,9 +92,8 @@ echo Install destination is: $install_destination
 if [ -f "src/Makefile" ] ; then rm src/Makefile ; fi
 touch src/Makefile
 
-echo "add_to_env_path := $add_bin_dir_to_path" >> src/Makefile
 echo "install_destination := $install_destination" >> src/Makefile
-echo "be_fancy := $be_fancy" >> src/Makefile
 echo "repo_root := $repo_root"  >> src/Makefile
 echo "home_dir := $HOME" >> src/Makefile
+echo "processed_common_paths := $gen_commonsh_full_path" >> src/Makefile
 cat src/Makefile.in >> src/Makefile

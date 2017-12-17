@@ -14,9 +14,9 @@ main() {
 	fi
 
 	. $common_paths_file
-	. $cfgcontrol_dir/arg.sh
-	. $cfgcontrol_dir/print.sh
-	. $cfgcontrol_dir/cfgcontrol_debug.sh
+	. $concon_dir/arg.sh
+	. $concon_dir/print.sh
+	. $concon_dir/concon_debug.sh
 	. $concon_dir/config.sh # TODO rename me
 	. $concon_dir/arg.sh
 	. $concon_dir/print.sh

@@ -15,6 +15,9 @@ First `cd` to the containing directory of useful-files.
 `make`
 `make install`
 
+Depending on configure options `make install` may require superuser
+permissions.
+
 If installation was completed successfully the provided scripts are now
 functional and can be invoked from any directory given that usr/local/bin
 has been added to $PATH.
@@ -32,7 +35,9 @@ Run `./configure --help` for more information on configure. Also installed
 scripts support help option.
 
 ### concon
-At this moment the only script to install is concon.
+After installing `concon --help` will give instructions on using the script.
 
 TODO <tell about concon here>
+* about adding files to follow
+
 TODO remove tracing whitespace

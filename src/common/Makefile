@@ -16,7 +16,10 @@ define cp_prune
 endef
 
 all: $(OUTFILES)
-	if [ -h "${BINDIR}/OUT_DIR_LINK_NAME" ] ; then rm ; fi
+	if [ -h "${BINDIR}/$(OUT_DIR_LINK_NAME)" ] ; then \
+		rm ${BINDIR}/$(OUT_DIR_LINK_NAME) ; \
+	fi
+
 	ln -s ${PROJECTOUT} ${BINDIR}/$(OUT_DIR_LINK_NAME)
 
 # Make does not consider implicit rules for PHONY targets
