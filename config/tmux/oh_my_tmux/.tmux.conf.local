@@ -287,6 +287,6 @@ set -g default-terminal "screen-256color"
 set -g allow-rename off
 
 # move status line to top
-#set -g status-position top
+set -g status-position top
 
 
