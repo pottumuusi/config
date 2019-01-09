@@ -279,7 +279,7 @@ bind V split-window -h -c "#{pane_current_path}"
 bind d previous-window
 bind f next-window
 
-set -s escape-time 0
+# set -s escape-time 0
 set -g default-terminal "screen-256color"
 
 # Window name won't reset when entering commands. Use <prefix> + , to give
