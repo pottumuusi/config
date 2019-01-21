@@ -1,0 +1,2 @@
+set -s escape-time 1                      # faster command sequences
+set -sg repeat-time 40                    # increase repeat timeout <- nope, Lower it instead. No idea what the default is though.
