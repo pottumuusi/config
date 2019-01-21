@@ -1,0 +1,34 @@
+From 8f077c2dfd6454bc8b4d65601551aa57970e83c3 Mon Sep 17 00:00:00 2001
+From: Aleksi Backman <bddubbb@gmail.com>
+Date: Mon, 21 Jan 2019 21:10:01 +0200
+Subject: [PATCH] Fix glob.c
+
+---
+ glob/glob.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/glob/glob.c b/glob/glob.c
+index 4bbf7bb..dbe8f57 100644
+--- a/glob/glob.c
++++ b/glob/glob.c
+@@ -51,7 +51,7 @@
+ #define GLOB_INTERFACE_VERSION 1
+ #if !defined _LIBC && defined __GNU_LIBRARY__ && __GNU_LIBRARY__ > 1
+ # include <gnu-versions.h>
+-# if _GNU_GLOB_INTERFACE_VERSION == GLOB_INTERFACE_VERSION
++# if _GNU_GLOB_INTERFACE_VERSION >= GLOB_INTERFACE_VERSION
+ #  define ELIDE_CODE
+ # endif
+ #endif
+@@ -206,7 +206,7 @@ my_realloc (p, n)
+ #endif /* __GNU_LIBRARY__ */
+ 
+ 
+-#if !defined __alloca && !defined __GNU_LIBRARY__
++#if !defined __alloca && defined __GNU_LIBRARY__
+ 
+ # ifdef	__GNUC__
+ #  undef alloca
+-- 
+2.20.1
+
