@@ -3,6 +3,9 @@
 # Commands from following tutorial
 # https://github.com/Valloric/YouCompleteMe/wiki/Building-Vim-from-source
 
+# Change if need be
+homedir=$HOME
+
 # Install prerequisite libraries + git
 # sudo apt-get install libncurses5-dev libgnome2-dev libgnomeui-dev \
 #     libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
@@ -14,10 +17,13 @@
 
 # [IMPORTANT] on ubuntu 14.04 only python 2 or python 3 can be used. not both
 # Get and compile vim
-# cd ~
-# git clone https://github.com/vim/vim.git
 
-cd /mnt/shared_home/home/tank/vim_arch/vim
+vimdir=$homedir/vim
+if [ ! -d $vimdir ] ; then
+	git clone https://github.com/vim/vim.git $vimdir
+fi
+
+cd $vimdir
 ./configure --with-features=huge \
             --enable-multibyte \
             --enable-rubyinterp=yes \
@@ -29,7 +35,7 @@ cd /mnt/shared_home/home/tank/vim_arch/vim
 #            --enable-pythoninterp=yes \
 #            --with-python-config-dir=/usr/lib/python2.7/config \
 
-make VIMRUNTIMEDIR=/usr/share/vim/vim80
+make VIMRUNTIMEDIR=/usr/share/vim/vim81
 sudo make install
 
 # Use checkinstall for easy uninstall
@@ -44,6 +50,7 @@ sudo make install
 # sudo update-alternatives --set vi /usr/bin/vim
 
 # Get vundle plugin manager here to avoid browsing
-if [ ! -d /mnt/shared_home/home/tank/vim_arch/Vundle ] ; then
-	git clone https://github.com/VundleVim/Vundle.vim.git /mnt/shared_home/home/tank/vim_arch/Vundle
+vundledir=$homedir/Vundle
+if [ ! -d $vundledir ] ; then
+	git clone https://github.com/VundleVim/Vundle.vim.git $vundledir
 fi
