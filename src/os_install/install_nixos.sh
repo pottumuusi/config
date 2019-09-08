@@ -2,6 +2,7 @@
 
 set -ex
 
+username="username"
 volume_group="vg01"
 boot_partition="/dev/nvme0n1p2"
 swap_partition="/dev/nvme0n1p6"
@@ -23,5 +24,8 @@ mount /dev/${volume_group}/${} /mnt/boot
 
 nixos-generate-config --root /mnt
 cp ${nixos_saved_config} /mnt/etc/nixos/configuration.nix
+sed -i 's/username/'"$username"'/g' /mnt/etc/nixos/configuration.nix
 
 nixos-install
+
+# TODO copy configuration files
