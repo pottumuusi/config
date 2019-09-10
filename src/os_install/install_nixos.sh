@@ -20,7 +20,7 @@ swapon ${swap_partition}
 
 mount /dev/${volume_group}/${nixos_root_name} /mnt
 mkdir -p /mnt/boot
-mount /dev/${volume_group}/${} /mnt/boot
+mount ${boot_partition} /mnt/boot
 
 nixos-generate-config --root /mnt
 cp ${nixos_saved_config} /mnt/etc/nixos/configuration.nix
