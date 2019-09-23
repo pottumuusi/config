@@ -18,7 +18,7 @@ lvm_partition_dev="${main_block_device}3"
 
 volgroup_name="vg01"
 root_size="14G"
-home_size="10G"
+home_size="9995M"
 
 root_partition_dev="/dev/${volgroup_name}/root"
 home_partition_dev="/dev/${volgroup_name}/home"
