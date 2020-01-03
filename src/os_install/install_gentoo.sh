@@ -2,7 +2,33 @@
 
 set -ex
 
-readonly main_block_device="/dev/vda"
+readonly DISABLED="TRUE"
+readonly main_block_device="/dev/sda"
+# TODO
+# * merge the URL variables
+# * use netcologne instead of gentoo.org
+# readonly frozen_stage3_release_dir="http://distfiles.gentoo.org/releases/amd64/autobuilds/20200101T214502Z/"
+readonly frozen_stage3_release_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
+# Current stage3 tar name will change, as it contains version of the most
+# recent stage3 release. Parse the name from webpage.
+readonly stage3_tar="$(curl ${frozen_stage3_release_dir} | grep --color=auto stage3 | grep amd64 | grep tar | grep -v multilib | grep -v -e CONTENTS -e DIGESTS | cut -d ">" -f 2 | cut -d "<" -f 1)"
+# readonly stage3_tar="stage3-amd64-20200101T214502Z.tar.xz"
+
+# readonly stage3_remote_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
+# readonly stage3_tarball_remote_full_path="${stage3_remote_dir}/${stage3_tarball_filename}"
+# readonly stage3_tarball_filename="stage3-amd64-20190929T214502Z.tar.xz"
+# readonly stage3_tarball_contents_filename="stage3-amd64-20190929T214502Z.tar.xz.CONTENTS "
+# readonly stage3_tarball_digests_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS"
+# readonly stage3_tarball_digests_asc_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS.asc"
+
+function print_header() {
+	echo -e "\n////////// $1 //////////\n"
+}
+
+function error_exit() {
+	echo -e "$1\nExiting..."
+	exit 1
+}
 
 # label: dos
 # label-id: 0x25a3d9ff
@@ -23,27 +49,23 @@ readonly home_size="9995M"
 readonly root_partition_dev="/dev/${volgroup_name}/root"
 readonly home_partition_dev="/dev/${volgroup_name}/home"
 
-readonly stage3_remote_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
-readonly stage3_tarball_remote_full_path="${stage3_remote_dir}/${stage3_tarball_filename}"
-readonly stage3_tarball_filename="stage3-amd64-20190929T214502Z.tar.xz"
-readonly stage3_tarball_contents_filename="stage3-amd64-20190929T214502Z.tar.xz.CONTENTS "
-readonly stage3_tarball_digests_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS"
-readonly stage3_tarball_digests_asc_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS.asc"
-
 function presetup() {
-	gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys 0xBB572E0E2D182910 # TODO check correctness
+	if [ "TRUE" != "${DISABLED}" ] ; then
+		# Was not able to connect to sks-keyservers.net
+		gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys 0xBB572E0E2D182910
+	fi
+	wget -O- https://gentoo.org/.well-known/openpgpkey/hu/wtktzo4gyuhzu8a4z5fdj3fgmr1u6tob?l=releng | gpg --import
 }
 
 function setup_date_and_time() {
 	echo "////////// SETTING DATE AND TIME //////////"
 	emerge net-misc/ntp
-	ntpd -q -g
+	ntpd -q -g # TODO test that works. Time may be correct out of the box
 }
 
 function setup_partitions() {
 	echo "////////// PARTITIONING //////////"
 	sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
-	mkfs.ext2 ${boot_partition_dev}
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
 
@@ -53,24 +75,43 @@ function setup_partitions() {
 	lvcreate --type linear -L ${root_size} -n root ${volgroup_name}
 	lvcreate --type linear -L ${home_size} -n home ${volgroup_name}
 
+	mkfs.ext2 ${boot_partition_dev}
 	mkfs.ext4 ${root_partition_dev}
 	mkfs.ext4 ${home_partition_dev}
+
+	mount ${root_partition_dev} /mnt/gentoo
+	mkdir /mnt/gentoo/boot
+	mkdir /mnt/gentoo/home
+	mount ${boot_partition_dev} /mnt/gentoo/boot
+	mount ${home_partition_dev} /mnt/gentoo/home
 }
 
 function setup_stage_tarball() {
 	echo "////////// INSTALLING STAGE TARBALL //////////"
-	pushd ./
-	cd /mnt/gentoo
-	wget ${stage3_tarball_remote_full_path}
-	openssl dgst -r -sha512 ${stage3_tarball_filename} # TODO exit with error message if does not match
+	pushd /mnt/gentoo
+	# wget ${stage3_tarball_remote_full_path}
+	wget ${frozen_stage3_release_dir}/${stage3_tar}
+	wget ${frozen_stage3_release_dir}/${stage3_tar}.DIGESTS.asc # Contains info of .DIGESTS
+	if [ "TRUE" != "${DISABLED}" ] ; then
+		openssl dgst -r -sha512 ${stage3_tarball_filename} # TODO exit with error message if does not match
+	fi
 
 	# From Gentoo wiki:
 	# To be absolutely certain that everything is valid, verify the
 	# fingerprint shown with the fingerprint on the Gentoo signatures page.
 	# Gentoo signatures page: https://www.gentoo.org/downloads/signatures/
-	gpg --verify ${stage3_tarball_digests_asc_filename}
+	readonly gpg_match="Good signature from \"Gentoo Linux Release Engineering"
+	gpg --verify ${stage3_tar}.DIGESTS.asc 2>&1 | grep ${gpg_match}
+	# gpg --verify ${stage3_tarball_digests_asc_filename}
 
-	tar xpvf ${stage3_tarball_filename} --xattrs-include='*.*' --numeric-owner
+	readonly signed_sum="$(grep -A1 SHA512 ${stage3_tar}.DIGESTS.asc | head -2 | grep -v SHA512)"
+	readonly calculated_sum="$(sha512sum ${stage3_tar})"
+	if [ "${signed_sum}" != "${calculated_sum}" ] ; then
+		error_exit "Stage 3 tar sums do not match."
+	fi
+
+	# tar xpvf ${stage3_tarball_filename} --xattrs-include='*.*' --numeric-owner
+	tar xpvf ${stage3_tar} --xattrs-include='*.*' --numeric-owner
 	popd
 }
 
@@ -115,3 +156,23 @@ setup_stage_tarball
 setup_compile_options
 setup_new_environment
 enter_new_environment
+
+#### Recent changes follow
+# mkfs.ext2 ${boot_partition_dev}
+# mkfs.ext4 ${root_partition_dev}
+# mkfs.ext4 ${home_partition_dev}
+# 
+# mount ${root_partition_dev} /mnt/gentoo
+# mkdir /mnt/gentoo/boot
+# mkdir /mnt/gentoo/home
+# mount ${boot_partition_dev} /mnt/gentoo/boot
+# mount ${home_partition_dev} /mnt/gentoo/home
+# 
+# print_header "GET STAGE3"
+# 
+# cd /mnt/gentoo
+# 
+# wget ${frozen_stage3_release_dir}/${stage3_tar}
+# wget ${frozen_stage3_release_dir}/${stage3_tar}.DIGESTS.asc # Contains info of .DIGESTS
+# 
+# print_header "INSTALL STAGE3"
