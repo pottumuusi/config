@@ -147,6 +147,7 @@ function setup_new_environment() {
 
 function enter_new_environment() {
 	# TODO chroot commands here
+	echo TODO chroot commands her
 }
 
 presetup
