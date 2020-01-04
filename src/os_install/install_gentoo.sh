@@ -59,8 +59,10 @@ function presetup() {
 
 function setup_date_and_time() {
 	echo "////////// SETTING DATE AND TIME //////////"
-	emerge net-misc/ntp
-	ntpd -q -g # TODO test that works. Time may be correct out of the box
+	if [ "TRUE" != "${DISABLED}" ] ; then
+		emerge net-misc/ntp
+		ntpd -q -g # TODO test that works. Time may be correct out of the box
+	fi
 }
 
 function setup_partitions() {
