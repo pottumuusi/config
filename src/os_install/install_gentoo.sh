@@ -2,6 +2,8 @@
 
 set -ex
 
+# TODO Make it possible to select which steps to execute.
+
 readonly DISABLED="TRUE"
 readonly main_block_device="/dev/sda"
 # TODO
