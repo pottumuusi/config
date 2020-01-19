@@ -77,9 +77,9 @@ function setup_partitions() {
 	lvcreate --type linear -L ${root_size} -n root ${volgroup_name}
 	lvcreate --type linear -L ${home_size} -n home ${volgroup_name}
 
-	mkfs.ext2 ${boot_partition_dev}
-	mkfs.ext4 ${root_partition_dev}
-	mkfs.ext4 ${home_partition_dev}
+	mkfs.ext2 -F -F ${boot_partition_dev}
+	mkfs.ext4 -F -F ${root_partition_dev}
+	mkfs.ext4 -F -F ${home_partition_dev}
 
 	mount ${root_partition_dev} /mnt/gentoo
 	mkdir /mnt/gentoo/boot
