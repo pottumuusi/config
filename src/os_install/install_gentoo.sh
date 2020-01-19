@@ -2,6 +2,8 @@
 
 set -ex
 
+cd $(dirname $0)
+
 # TODO Make it possible to select which steps to execute.
 
 readonly DISABLED="TRUE"
