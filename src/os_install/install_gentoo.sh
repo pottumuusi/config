@@ -103,7 +103,7 @@ function setup_stage_tarball() {
 	# fingerprint shown with the fingerprint on the Gentoo signatures page.
 	# Gentoo signatures page: https://www.gentoo.org/downloads/signatures/
 	readonly gpg_match="Good signature from \"Gentoo Linux Release Engineering"
-	gpg --verify ${stage3_tar}.DIGESTS.asc 2>&1 | grep ${gpg_match}
+	gpg --verify ${stage3_tar}.DIGESTS.asc 2>&1 | grep "${gpg_match}"
 	# gpg --verify ${stage3_tarball_digests_asc_filename}
 
 	readonly signed_sum="$(grep -A1 SHA512 ${stage3_tar}.DIGESTS.asc | head -2 | grep -v SHA512)"
