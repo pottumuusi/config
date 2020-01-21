@@ -51,6 +51,23 @@ readonly home_size="9995M"
 readonly root_partition_dev="/dev/${volgroup_name}/root"
 readonly home_partition_dev="/dev/${volgroup_name}/home"
 
+readonly opt_pre_chroot="--pre-chroot"
+readonly opt_post_chroot="--post-chroot"
+
+function process_args() {
+	if [ "${opt_post_chroot}" != "$1" ] ; then
+		readonly is_post_chroot="TRUE"
+		return 0
+	fi
+
+	if [ "${opt_pre_chroot}" = "$1" ] ; then
+		readonly is_pre_chroot="TRUE"
+		return 0
+	fi
+
+	error_exit "Unknown program argument: $1"
+}
+
 function presetup() {
 	if [ "TRUE" != "${DISABLED}" ] ; then
 		# Was not able to connect to sks-keyservers.net
@@ -161,13 +178,19 @@ function post_chroot_install() {
 }
 
 function main() {
-	# TODO use arguments to select whether to run pre_chroot_install + chroot OR post_chroot_install
-	pre_chroot_install
+	process_args
 
-	# TODO chroot commands here
-	echo TODO chroot commands her
+	if [ "TRUE" = "${pre_chroot_install}" ] ; then
+		# TODO use arguments to select whether to run pre_chroot_install + chroot OR post_chroot_install
+		pre_chroot_install
 
-	post_chroot_install
+		# TODO chroot commands here
+		echo TODO chroot commands her
+	fi
+
+	if [ "TRUE" = "${post_chroot_install}" ] ; then
+		post_chroot_install
+	fi
 }
 
 main
