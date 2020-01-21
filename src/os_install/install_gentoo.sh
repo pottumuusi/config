@@ -5,6 +5,8 @@ set -ex
 cd $(dirname $0)
 script_root="$(pwd)"
 
+source util.sh
+
 # TODO Make it possible to select which steps to execute.
 
 readonly DISABLED="TRUE"
@@ -26,15 +28,6 @@ readonly stage3_tar="$(curl ${frozen_stage3_release_dir} | grep --color=auto sta
 # readonly stage3_tarball_digests_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS"
 # readonly stage3_tarball_digests_asc_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS.asc"
 
-function print_header() {
-	echo -e "\n////////// $1 //////////\n"
-}
-
-function error_exit() {
-	echo -e "$1\nExiting..."
-	exit 1
-}
-
 readonly gentoo_config="${script_root}/gentoo_config"
 
 # label: dos
@@ -48,6 +41,8 @@ readonly saved_partition_table="${gentoo_config}/saved_partition_table"
 readonly boot_partition_dev="${main_block_device}1"
 readonly swap_partition_dev="${main_block_device}2"
 readonly lvm_partition_dev="${main_block_device}3"
+
+readonly make_conf="${gentoo_config}/make.conf"
 
 readonly volgroup_name="vg01"
 readonly root_size="14G"
@@ -137,14 +132,12 @@ function setup_compile_options() {
 
 function setup_new_environment() {
 	echo "////////// SETTING UP NEW ENVIRONMENT //////////"
-	# save output of mirrorselect to repo and append to make.conf
-	# mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf
+
+	cp ${make_conf} /mnt/gentoo/etc/portage/make.conf
 	mkdir --parents /mnt/gentoo/etc/portage/repos.conf
 	cp \
 		/mnt/gentoo/usr/share/portage/config/repos.conf \
 		/mnt/gentoo/etc/portage/repos.conf/gentoo.conf
-	echo "////////// PRINTING GENTOO CONF //////////"
-	cat /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
 	cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
 
 	mount --types proc /proc /mnt/gentoo/proc
@@ -154,18 +147,30 @@ function setup_new_environment() {
 	mount --make-rslave /mnt/gentoo/dev
 }
 
-function enter_new_environment() {
-	# TODO chroot commands here
-	echo TODO chroot commands her
+function pre_chroot_install() {
+	presetup
+	setup_partitions
+	setup_date_and_time
+	setup_stage_tarball
+	setup_compile_options
+	setup_new_environment
 }
 
-presetup
-setup_partitions
-setup_date_and_time
-setup_stage_tarball
-setup_compile_options
-setup_new_environment
-enter_new_environment
+function post_chroot_install() {
+	echo "post_chroot_install not yet implemented"
+}
+
+function main() {
+	# TODO use arguments to select whether to run pre_chroot_install + chroot OR post_chroot_install
+	pre_chroot_install
+
+	# TODO chroot commands here
+	echo TODO chroot commands her
+
+	post_chroot_install
+}
+
+main
 
 #### Recent changes follow
 # mkfs.ext2 ${boot_partition_dev}
