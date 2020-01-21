@@ -3,6 +3,7 @@
 set -ex
 
 cd $(dirname $0)
+script_root="$(pwd)"
 
 # TODO Make it possible to select which steps to execute.
 
@@ -34,6 +35,8 @@ function error_exit() {
 	exit 1
 }
 
+readonly gentoo_config="${script_root}/gentoo_config"
+
 # label: dos
 # label-id: 0x25a3d9ff
 # unit: sectors
@@ -41,7 +44,7 @@ function error_exit() {
 # start=        2048, size=     4194304, type=83, bootable
 # start=     4196352, size=     8388608, type=82
 # start=    12584960, size=    50329600, type=8e
-readonly saved_partition_table="./saved_partition_table"
+readonly saved_partition_table="${gentoo_config}/saved_partition_table"
 readonly boot_partition_dev="${main_block_device}1"
 readonly swap_partition_dev="${main_block_device}2"
 readonly lvm_partition_dev="${main_block_device}3"
