@@ -171,23 +171,3 @@ function main() {
 }
 
 main
-
-#### Recent changes follow
-# mkfs.ext2 ${boot_partition_dev}
-# mkfs.ext4 ${root_partition_dev}
-# mkfs.ext4 ${home_partition_dev}
-# 
-# mount ${root_partition_dev} /mnt/gentoo
-# mkdir /mnt/gentoo/boot
-# mkdir /mnt/gentoo/home
-# mount ${boot_partition_dev} /mnt/gentoo/boot
-# mount ${home_partition_dev} /mnt/gentoo/home
-# 
-# print_header "GET STAGE3"
-# 
-# cd /mnt/gentoo
-# 
-# wget ${frozen_stage3_release_dir}/${stage3_tar}
-# wget ${frozen_stage3_release_dir}/${stage3_tar}.DIGESTS.asc # Contains info of .DIGESTS
-# 
-# print_header "INSTALL STAGE3"
