@@ -7,26 +7,12 @@ script_root="$(pwd)"
 
 source util.sh
 
-# TODO Make it possible to select which steps to execute.
-
 readonly DISABLED="TRUE"
 readonly main_block_device="/dev/sda"
-# TODO
-# * merge the URL variables
-# * use netcologne instead of gentoo.org
-# readonly frozen_stage3_release_dir="http://distfiles.gentoo.org/releases/amd64/autobuilds/20200101T214502Z/"
-readonly frozen_stage3_release_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
-# Current stage3 tar name will change, as it contains version of the most
-# recent stage3 release. Parse the name from webpage.
-readonly stage3_tar="$(curl ${frozen_stage3_release_dir} | grep --color=auto stage3 | grep amd64 | grep tar | grep -v multilib | grep -v -e CONTENTS -e DIGESTS | cut -d ">" -f 2 | cut -d "<" -f 1)"
-# readonly stage3_tar="stage3-amd64-20200101T214502Z.tar.xz"
 
-# readonly stage3_remote_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
-# readonly stage3_tarball_remote_full_path="${stage3_remote_dir}/${stage3_tarball_filename}"
-# readonly stage3_tarball_filename="stage3-amd64-20190929T214502Z.tar.xz"
-# readonly stage3_tarball_contents_filename="stage3-amd64-20190929T214502Z.tar.xz.CONTENTS "
-# readonly stage3_tarball_digests_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS"
-# readonly stage3_tarball_digests_asc_filename="stage3-amd64-20190929T214502Z.tar.xz.DIGESTS.asc"
+# Parse stage3 tar name from webpage.
+readonly frozen_stage3_release_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
+readonly stage3_tar="$(curl ${frozen_stage3_release_dir} | grep --color=auto stage3 | grep amd64 | grep tar | grep -v multilib | grep -v -e CONTENTS -e DIGESTS | cut -d ">" -f 2 | cut -d "<" -f 1)"
 
 readonly gentoo_config="${script_root}/gentoo_config"
 
