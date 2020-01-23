@@ -12,7 +12,14 @@ readonly main_block_device="/dev/sda"
 
 # Parse stage3 tar name from webpage.
 readonly frozen_stage3_release_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
-readonly stage3_tar="$(curl ${frozen_stage3_release_dir} | grep --color=auto stage3 | grep amd64 | grep tar | grep -v multilib | grep -v -e CONTENTS -e DIGESTS | cut -d ">" -f 2 | cut -d "<" -f 1)"
+readonly stage3_tar="$(curl ${frozen_stage3_release_dir}	\
+	| grep stage3						\
+	| grep amd64						\
+	| grep tar						\
+	| grep -v multilib					\
+	| grep -v -e CONTENTS -e DIGESTS			\
+	| cut -d ">" -f 2					\
+	| cut -d "<" -f 1)"
 
 readonly gentoo_config="${script_root}/gentoo_config"
 
