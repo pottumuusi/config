@@ -116,7 +116,6 @@ function setup_stage_tarball() {
 	# Gentoo signatures page: https://www.gentoo.org/downloads/signatures/
 	readonly gpg_match="Good signature from \"Gentoo Linux Release Engineering"
 	gpg --verify ${stage3_tar}.DIGESTS.asc 2>&1 | grep "${gpg_match}"
-	# gpg --verify ${stage3_tarball_digests_asc_filename}
 
 	readonly signed_sum="$(grep -A1 SHA512 ${stage3_tar}.DIGESTS.asc | head -2 | grep -v SHA512)"
 	readonly calculated_sum="$(sha512sum ${stage3_tar})"
@@ -124,7 +123,6 @@ function setup_stage_tarball() {
 		error_exit "Stage 3 tar sums do not match."
 	fi
 
-	# tar xpvf ${stage3_tarball_filename} --xattrs-include='*.*' --numeric-owner
 	tar xpvf ${stage3_tar} --xattrs-include='*.*' --numeric-owner
 	popd
 }
@@ -174,11 +172,10 @@ function main() {
 	process_args
 
 	if [ "TRUE" = "${pre_chroot_install}" ] ; then
-		# TODO use arguments to select whether to run pre_chroot_install + chroot OR post_chroot_install
 		pre_chroot_install
 
 		# TODO chroot commands here
-		echo TODO chroot commands her
+		echo TODO chroot commands here
 	fi
 
 	if [ "TRUE" = "${post_chroot_install}" ] ; then
