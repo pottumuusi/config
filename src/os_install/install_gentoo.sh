@@ -9,6 +9,7 @@ source util.sh
 
 readonly DISABLED="TRUE"
 readonly main_block_device="/dev/sda"
+readonly mountpoint_root="/mnt/gentoo"
 
 # Parse stage3 tar name from webpage.
 readonly frozen_stage3_release_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
@@ -105,16 +106,16 @@ function setup_partitions() {
 	mkfs.ext4 -F -F ${root_partition_dev}
 	mkfs.ext4 -F -F ${home_partition_dev}
 
-	mount ${root_partition_dev} /mnt/gentoo
-	mkdir /mnt/gentoo/boot
-	mkdir /mnt/gentoo/home
-	mount ${boot_partition_dev} /mnt/gentoo/boot
-	mount ${home_partition_dev} /mnt/gentoo/home
+	mount ${root_partition_dev} ${mountpoint_root}
+	mkdir ${mountpoint_root}/boot
+	mkdir ${mountpoint_root}/home
+	mount ${boot_partition_dev} ${mountpoint_root}/boot
+	mount ${home_partition_dev} ${mountpoint_root}/home
 }
 
 function setup_stage_tarball() {
 	echo "INSTALLING STAGE TARBALL"
-	pushd /mnt/gentoo
+	pushd ${mountpoint_root}
 	# wget ${stage3_tarball_remote_full_path}
 	wget ${frozen_stage3_release_dir}/${stage3_tar}
 	wget ${frozen_stage3_release_dir}/${stage3_tar}.DIGESTS.asc # Contains info of .DIGESTS
@@ -142,22 +143,22 @@ function setup_stage_tarball() {
 function setup_portage_configuration() {
 	print_header "SETTING UP PORTAGE CONFIGURATION"
 
-	cp ${make_conf} /mnt/gentoo/etc/portage/make.conf
-	mkdir --parents /mnt/gentoo/etc/portage/repos.conf
+	cp ${make_conf} ${mountpoint_root}/etc/portage/make.conf
+	mkdir --parents ${mountpoint_root}/etc/portage/repos.conf
 	cp \
-		/mnt/gentoo/usr/share/portage/config/repos.conf \
-		/mnt/gentoo/etc/portage/repos.conf/gentoo.conf
-	cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+		${mountpoint_root}/usr/share/portage/config/repos.conf \
+		${mountpoint_root}/etc/portage/repos.conf/gentoo.conf
+	cp --dereference /etc/resolv.conf ${mountpoint_root}/etc/
 }
 
 function setup_new_environment() {
 	print_header "SETTING UP NEW ENVIRONMENT"
 
-	mount --types proc /proc /mnt/gentoo/proc
-	mount --rbind /sys /mnt/gentoo/sys
-	mount --make-rslave /mnt/gentoo/sys
-	mount --rbind /dev /mnt/gentoo/dev
-	mount --make-rslave /mnt/gentoo/dev
+	mount --types proc /proc ${mountpoint_root}/proc
+	mount --rbind /sys ${mountpoint_root}/sys
+	mount --make-rslave ${mountpoint_root}/sys
+	mount --rbind /dev ${mountpoint_root}/dev
+	mount --make-rslave ${mountpoint_root}/dev
 }
 
 function pre_chroot_install() {
