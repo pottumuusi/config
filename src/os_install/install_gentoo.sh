@@ -82,7 +82,7 @@ function presetup() {
 }
 
 function setup_date_and_time() {
-	echo "////////// SETTING DATE AND TIME //////////"
+	print_header "SETTING DATE AND TIME"
 	if [ "TRUE" != "${DISABLED}" ] ; then
 		emerge net-misc/ntp
 		ntpd -q -g # TODO test that works. Time may be correct out of the box
@@ -90,7 +90,7 @@ function setup_date_and_time() {
 }
 
 function setup_partitions() {
-	echo "////////// PARTITIONING //////////"
+	print_header "PARTITIONING"
 	sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
@@ -113,7 +113,7 @@ function setup_partitions() {
 }
 
 function setup_stage_tarball() {
-	echo "////////// INSTALLING STAGE TARBALL //////////"
+	echo "INSTALLING STAGE TARBALL"
 	pushd /mnt/gentoo
 	# wget ${stage3_tarball_remote_full_path}
 	wget ${frozen_stage3_release_dir}/${stage3_tar}
@@ -139,8 +139,9 @@ function setup_stage_tarball() {
 	popd
 }
 
+# TODO remove if separate function not required
 function setup_compile_options() {
-	echo "////////// SETTING COMPILE OPTIONS  //////////"
+	echo "//////////////////// SETTING COMPILE OPTIONS  ////////////////////"
 	# TODO edit make.conf, save it to repo and write to system being
 	# installed. /mnt/gentoo/etc/portage/make.conf
 	#
@@ -151,7 +152,7 @@ function setup_compile_options() {
 }
 
 function setup_new_environment() {
-	echo "////////// SETTING UP NEW ENVIRONMENT //////////"
+	print_header "SETTING UP NEW ENVIRONMENT"
 
 	cp ${make_conf} /mnt/gentoo/etc/portage/make.conf
 	mkdir --parents /mnt/gentoo/etc/portage/repos.conf
