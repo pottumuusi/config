@@ -162,6 +162,7 @@ function setup_new_environment() {
 }
 
 function pre_chroot_install() {
+	print_header "PRE-CHROOT_INSTALL"
 	presetup
 	setup_partitions
 	setup_date_and_time
@@ -171,7 +172,7 @@ function pre_chroot_install() {
 }
 
 function post_chroot_install() {
-	echo "post_chroot_install not yet implemented"
+	print_header "POST-CHROOT_INSTALL"
 }
 
 function main() {
@@ -180,8 +181,8 @@ function main() {
 	if [ "TRUE" = "${is_pre_chroot_install}" ] ; then
 		pre_chroot_install
 
-		# TODO chroot commands here
-		echo TODO chroot commands here
+		chroot ${mountpoint_root} /bin/bash -c \
+			${script_root}/install_gentoo.sh --post-chroot
 	fi
 
 	if [ "TRUE" = "${is_post_chroot_install}" ] ; then
