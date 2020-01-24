@@ -48,17 +48,29 @@ readonly opt_pre_chroot="--pre-chroot"
 readonly opt_post_chroot="--post-chroot"
 
 function process_args() {
-	if [ "${opt_post_chroot}" != "$1" ] ; then
-		readonly is_post_chroot="TRUE"
-		return 0
+	for opt in "$@" ; do
+		echo opt is: $opt
+
+		if [ "${opt_post_chroot}" = "$opt" ] ; then
+			readonly is_post_chroot_install="TRUE"
+			continue
+		fi
+
+		if [ "${opt_pre_chroot}" = "$opt" ] ; then
+			readonly is_pre_chroot_install="TRUE"
+			continue
+		fi
+
+		error_exit "Unknown program argument: $opt"
+	done
+
+	if [ "TRUE" != "${is_pre_chroot_install}" -a "TRUE" != "${is_post_chroot_install}" ] ; then
+		error_exit "Expecting to receive either --pre-chroot or --post-chroot as an argument."
 	fi
 
-	if [ "${opt_pre_chroot}" = "$1" ] ; then
-		readonly is_pre_chroot="TRUE"
-		return 0
+	if [ "TRUE" = "${is_pre_chroot_install}" -a "TRUE" = "${is_post_chroot_install}" ] ; then
+		error_exit "Please choose either --pre-chroot or --post-chroot as program argument. Not both."
 	fi
-
-	error_exit "Unknown program argument: $1"
 }
 
 function presetup() {
@@ -169,18 +181,18 @@ function post_chroot_install() {
 }
 
 function main() {
-	process_args
+	process_args "$@"
 
-	if [ "TRUE" = "${pre_chroot_install}" ] ; then
+	if [ "TRUE" = "${is_pre_chroot_install}" ] ; then
 		pre_chroot_install
 
 		# TODO chroot commands here
 		echo TODO chroot commands here
 	fi
 
-	if [ "TRUE" = "${post_chroot_install}" ] ; then
+	if [ "TRUE" = "${is_post_chroot_install}" ] ; then
 		post_chroot_install
 	fi
 }
 
-main
+main "$@"
