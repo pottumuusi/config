@@ -139,20 +139,8 @@ function setup_stage_tarball() {
 	popd
 }
 
-# TODO remove if separate function not required
-function setup_compile_options() {
-	echo "//////////////////// SETTING COMPILE OPTIONS  ////////////////////"
-	# TODO edit make.conf, save it to repo and write to system being
-	# installed. /mnt/gentoo/etc/portage/make.conf
-	#
-	# COMMON_FLAGS="-march=native -O2 -pipe"
-	# CFLAGS="${COMMON_FLAGS}"
-	# CXXFLAGS="${COMMON_FLAGS}"
-	# MAKEOPTS="-j5"
-}
-
-function setup_new_environment() {
-	print_header "SETTING UP NEW ENVIRONMENT"
+function setup_portage_configuration() {
+	print_header "SETTING UP PORTAGE CONFIGURATION"
 
 	cp ${make_conf} /mnt/gentoo/etc/portage/make.conf
 	mkdir --parents /mnt/gentoo/etc/portage/repos.conf
@@ -160,6 +148,10 @@ function setup_new_environment() {
 		/mnt/gentoo/usr/share/portage/config/repos.conf \
 		/mnt/gentoo/etc/portage/repos.conf/gentoo.conf
 	cp --dereference /etc/resolv.conf /mnt/gentoo/etc/
+}
+
+function setup_new_environment() {
+	print_header "SETTING UP NEW ENVIRONMENT"
 
 	mount --types proc /proc /mnt/gentoo/proc
 	mount --rbind /sys /mnt/gentoo/sys
@@ -173,7 +165,7 @@ function pre_chroot_install() {
 	setup_partitions
 	setup_date_and_time
 	setup_stage_tarball
-	setup_compile_options
+	setup_portage_configuration
 	setup_new_environment
 }
 
