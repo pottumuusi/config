@@ -179,7 +179,7 @@ function setup_portage() {
 }
 
 function setup_timezone() {
-	echo "Europe/Helsinki" > /etc/timezone
+	cp ${gentoo_config}/timezone > /etc/timezone
 	emerge --config sys-libs/timezone-data
 }
 
@@ -187,6 +187,8 @@ function setup_locale() {
 	cp ${gentoo_config}/locale.gen /etc/locale.gen
 	locale-gen
 	eselect locale set en_US
+	env-update
+	source /etc/profile
 }
 
 function pre_chroot_install() {
