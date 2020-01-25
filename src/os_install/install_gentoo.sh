@@ -183,6 +183,12 @@ function setup_timezone() {
 	emerge --config sys-libs/timezone-data
 }
 
+function setup_locale() {
+	cp ${gentoo_config}/locale.gen /etc/locale.gen
+	locale-gen
+	eselect locale set en_US
+}
+
 function pre_chroot_install() {
 	print_header "PRE-CHROOT_INSTALL"
 	presetup
@@ -200,6 +206,7 @@ function post_chroot_install() {
 
 	setup_portage
 	setup_timezone
+	setup_locale
 }
 
 function main() {
