@@ -46,11 +46,24 @@ readonly root_partition_dev="/dev/${volgroup_name}/root"
 readonly home_partition_dev="/dev/${volgroup_name}/home"
 
 readonly opt_pre_chroot="--pre-chroot"
+readonly opt_chroot="--chroot"
 readonly opt_post_chroot="--post-chroot"
+readonly opt_full_install="--full"
 
 function process_args() {
 	for opt in "$@" ; do
 		echo opt is: $opt
+
+		if [ "${opt_full_install}" = "$opt" ] ; then
+			readonly is_pre_chroot_install="TRUE"
+			readonly call_post_chroot_install="TRUE"
+			continue
+		fi
+
+		if [ "${opt_chroot}" = "$opt" ] ; then
+			readonly call_post_chroot_install="TRUE"
+			continue
+		fi
 
 		if [ "${opt_post_chroot}" = "$opt" ] ; then
 			readonly is_post_chroot_install="TRUE"
@@ -216,7 +229,9 @@ function main() {
 
 	if [ "TRUE" = "${is_pre_chroot_install}" ] ; then
 		pre_chroot_install
+	fi
 
+	if [ "TRUE" = "${call_post_chroot_install}" ] ; then
 		mkdir -p ${mountpoint_root}/${script_root}/
 		cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
 		chroot ${mountpoint_root} /bin/bash -c \
