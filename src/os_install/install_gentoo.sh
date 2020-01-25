@@ -204,18 +204,28 @@ function setup_locale() {
 	source /etc/profile
 }
 
-function pre_chroot_install() {
-	print_header "PRE-CHROOT_INSTALL"
+function install_pre_chroot() {
+	print_header "INSTALL_PRE-CHROOT"
 	presetup
 	setup_partitions
 	setup_date_and_time
 	setup_stage_tarball
 	setup_portage_configuration
-	setup_new_environment
 }
 
-function post_chroot_install() {
-	print_header "POST-CHROOT_INSTALL"
+function install_chroot() {
+	print_header "INSTALL_CHROOT"
+
+	setup_new_environment
+
+	mkdir -p ${mountpoint_root}/${script_root}/
+	cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
+	chroot ${mountpoint_root} /bin/bash -c \
+		"${script_root}/install_gentoo.sh --post-chroot"
+}
+
+function install_post_chroot() {
+	print_header "INSTALL_POST-CHROOT"
 
 	source /etc/profile
 
@@ -228,18 +238,15 @@ function main() {
 	process_args "$@"
 
 	if [ "TRUE" = "${is_pre_chroot_install}" ] ; then
-		pre_chroot_install
+		install_pre_chroot
 	fi
 
 	if [ "TRUE" = "${call_post_chroot_install}" ] ; then
-		mkdir -p ${mountpoint_root}/${script_root}/
-		cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
-		chroot ${mountpoint_root} /bin/bash -c \
-			"${script_root}/install_gentoo.sh --post-chroot"
+		install_chroot
 	fi
 
 	if [ "TRUE" = "${is_post_chroot_install}" ] ; then
-		post_chroot_install
+		install_post_chroot
 	fi
 }
 
