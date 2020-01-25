@@ -217,8 +217,10 @@ function main() {
 	if [ "TRUE" = "${is_pre_chroot_install}" ] ; then
 		pre_chroot_install
 
+		mkdir -p ${mountpoint_root}/${script_root}/
+		cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
 		chroot ${mountpoint_root} /bin/bash -c \
-			${script_root}/install_gentoo.sh --post-chroot
+			"${script_root}/install_gentoo.sh --post-chroot"
 	fi
 
 	if [ "TRUE" = "${is_post_chroot_install}" ] ; then
