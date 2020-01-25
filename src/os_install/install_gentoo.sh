@@ -161,6 +161,28 @@ function setup_new_environment() {
 	mount --make-rslave ${mountpoint_root}/dev
 }
 
+function setup_portage() {
+	emerge-webrsync
+
+	eselect profile set default/linux/amd64/17.1
+
+	emerge --verbose --update --deep --newuse @world
+
+	# TODO Check if necessary to update make.conf. Was it changed during
+	# portage setup?
+
+	# TODO configure ACCEPT_LICENSE
+	# to make.conf:
+	# ACCEPT_LICENSE="-* @FREE"
+	# Per package overrides are also possible. For example can change:
+	# /etc/portage/package.license/kernel
+}
+
+function setup_timezone() {
+	echo "Europe/Helsinki" > /etc/timezone
+	emerge --config sys-libs/timezone-data
+}
+
 function pre_chroot_install() {
 	print_header "PRE-CHROOT_INSTALL"
 	presetup
@@ -173,6 +195,11 @@ function pre_chroot_install() {
 
 function post_chroot_install() {
 	print_header "POST-CHROOT_INSTALL"
+
+	source /etc/profile
+
+	setup_portage
+	setup_timezone
 }
 
 function main() {
