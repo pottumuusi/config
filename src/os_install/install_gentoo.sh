@@ -179,7 +179,7 @@ function setup_portage() {
 }
 
 function setup_timezone() {
-	cp ${gentoo_config}/timezone > /etc/timezone
+	cp ${gentoo_config}/timezone /etc/timezone
 	emerge --config sys-libs/timezone-data
 }
 
