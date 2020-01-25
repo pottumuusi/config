@@ -114,7 +114,7 @@ function setup_partitions() {
 }
 
 function setup_stage_tarball() {
-	echo "INSTALLING STAGE TARBALL"
+	print_header "INSTALLING STAGE TARBALL"
 	pushd ${mountpoint_root}
 	# wget ${stage3_tarball_remote_full_path}
 	wget ${frozen_stage3_release_dir}/${stage3_tar}
