@@ -99,6 +99,28 @@ function setup_date_and_time() {
 	fi
 }
 
+function maybe_mount_partitions() {
+	if [ "TRUE" != "$(is_mounted "${mountpoint_root}")" ] ; then
+		mount ${root_partition_dev} ${mountpoint_root}
+	fi
+
+	if [ ! -d "${mountpoint_root}/boot" ] ; then
+		mkdir ${mountpoint_root}/boot
+	fi
+
+	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/boot")" ] ; then
+		mount ${boot_partition_dev} ${mountpoint_root}/boot
+	fi
+
+	if [ ! -d "${mountpoint_root}/home" ] ; then
+		mkdir ${mountpoint_root}/home
+	fi
+
+	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/home")" ] ; then
+		mount ${home_partition_dev} ${mountpoint_root}/home
+	fi
+}
+
 function setup_partitions() {
 	print_header "PARTITIONING"
 	sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
@@ -115,11 +137,7 @@ function setup_partitions() {
 	mkfs.ext4 -F -F ${root_partition_dev}
 	mkfs.ext4 -F -F ${home_partition_dev}
 
-	mount ${root_partition_dev} ${mountpoint_root}
-	mkdir ${mountpoint_root}/boot
-	mkdir ${mountpoint_root}/home
-	mount ${boot_partition_dev} ${mountpoint_root}/boot
-	mount ${home_partition_dev} ${mountpoint_root}/home
+	maybe_mount_partitions
 }
 
 function setup_stage_tarball() {
@@ -238,6 +256,7 @@ function main() {
 	fi
 
 	if [ "TRUE" = "${call_post_chroot_install}" ] ; then
+		maybe_mount_partitions
 		install_chroot
 	fi
 
