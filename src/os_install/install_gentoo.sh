@@ -123,6 +123,9 @@ function maybe_mount_partitions() {
 
 function setup_partitions() {
 	print_header "PARTITIONING"
+
+	# TODO target machine has UEFI, will need to use GPT
+	# Is it possible to use sfdisk or is there another similar tool?
 	sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
@@ -218,6 +221,41 @@ function setup_locale() {
 	source /etc/profile
 }
 
+function setup_kernel() {
+	emerge sys-kernel/gentoo-sources
+	cp ${gentoo_config}/.config /usr/src/linux
+	make
+	make modules_install
+	make install
+}
+
+function setup_initramfs() {
+	# TODO
+	# LVM initramfs support
+	# 	* use ldd to verify that binary is static
+	# 	* store /usr/src/initramfs/init configuration to ${gentoo_config}
+	#		* see: https://wiki.gentoo.org/wiki/Custom_Initramfs#LVM
+
+	# TODO install sys-fs/lvm2 with "static" USE flag
+	USE="static" emerge sys-fs/lvm2
+	emerge sys-kernel/genkernel
+
+	# TODO configuration
+
+	# TODO is --install required?
+	genkernel --lvm initramfs
+	# genkernel --lvm --install initramfs
+
+	rc-update add lvm boot
+
+	# TODO LVM to kernel commandline. Do this in bootloader setup?
+	#
+	# /etc/default/grub
+	# GRUB_CMDLINE_LINUX
+
+	echo -e "\nsetup_initramfs not yet fully implemented!\n"
+}
+
 function install_pre_chroot() {
 	print_header "INSTALL_PRE-CHROOT"
 	presetup
@@ -246,6 +284,8 @@ function install_post_chroot() {
 	setup_portage
 	setup_timezone
 	setup_locale
+	setup_kernel
+	setup_initramfs
 }
 
 function main() {
