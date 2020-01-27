@@ -78,10 +78,6 @@ function process_args() {
 		error_exit "Unknown program argument: $opt"
 	done
 
-	if [ "TRUE" != "${is_pre_chroot_install}" -a "TRUE" != "${is_post_chroot_install}" ] ; then
-		error_exit "Expecting to receive either --pre-chroot or --post-chroot as an argument."
-	fi
-
 	if [ "TRUE" = "${is_pre_chroot_install}" -a "TRUE" = "${is_post_chroot_install}" ] ; then
 		error_exit "Please choose either --pre-chroot or --post-chroot as program argument. Not both."
 	fi
