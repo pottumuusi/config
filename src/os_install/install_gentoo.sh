@@ -197,6 +197,8 @@ function setup_kernel() {
 	make modules_install
 	make install
 	popd
+
+	emerge --ask sys-kernel/linux-firmware
 }
 
 function setup_initramfs() {
