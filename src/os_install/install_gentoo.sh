@@ -183,10 +183,13 @@ function setup_locale() {
 
 function setup_kernel() {
 	emerge sys-kernel/gentoo-sources
-	cp ${gentoo_config}/.config /usr/src/linux
+	cp ${gentoo_config}/.config ${kernel_sources_dir}
+
+	pushd ${kernel_sources_dir}
 	make
 	make modules_install
 	make install
+	popd
 }
 
 function setup_initramfs() {
@@ -241,6 +244,7 @@ function install_post_chroot() {
 
 	source /etc/profile
 
+	# TODO use an array to select setup functions to call
 	test "$(should_setup_portage)" && setup_portage
 	test "$(should_setup_timezone)" && setup_timezone
 	test "$(should_setup_locale)" && setup_locale

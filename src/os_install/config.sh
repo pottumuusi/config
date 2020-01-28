@@ -48,3 +48,5 @@ readonly opt_pre_chroot="--pre-chroot"
 readonly opt_chroot="--chroot"
 readonly opt_post_chroot="--post-chroot"
 readonly opt_full_install="--full"
+
+readonly kernel_sources_dir="/usr/src/linux"
