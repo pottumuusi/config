@@ -223,7 +223,7 @@ function setup_initramfs() {
 	# TODO LVM to kernel commandline. Do this in bootloader setup?
 	#
 	# /etc/default/grub
-	# GRUB_CMDLINE_LINUX
+	# GRUB_CMDLINE_LINUX="dolvm"
 
 	echo -e "\nsetup_initramfs not yet fully implemented!\n"
 }
