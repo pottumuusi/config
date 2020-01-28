@@ -20,6 +20,7 @@ function is_mounted() {
 
 	if [ -z "$(mount | grep ${path})" ] ; then
 		echo "TRUE"
+		return
 	fi
 
 	echo "FALSE"
