@@ -24,3 +24,49 @@ function is_mounted() {
 
 	echo "FALSE"
 }
+
+# Modify config.sh to change what to setup.
+function should_setup_portage() {
+	if [ "TRUE" = "${cfg_should_setup_portage}" ] ; then
+		echo "TRUE"
+		return
+	fi
+
+	echo ""
+}
+
+function should_setup_timezone() {
+	if [ "TRUE" = "${cfg_should_setup_timezone}" ] ; then
+		echo "TRUE"
+		return
+	fi
+
+	echo ""
+}
+
+function should_setup_locale() {
+	if [ "TRUE" = "${cfg_should_setup_locale}" ] ; then
+		echo "TRUE"
+		return
+	fi
+
+	echo ""
+}
+
+function should_setup_kernel() {
+	if [ "TRUE" = "${cfg_should_setup_kernel}" ] ; then
+		echo "TRUE"
+		return
+	fi
+
+	echo ""
+}
+
+function should_setup_initramfs() {
+	if [ "TRUE" = "${cfg_should_setup_initramfs}" ] ; then
+		echo "TRUE"
+		return
+	fi
+
+	echo ""
+}
