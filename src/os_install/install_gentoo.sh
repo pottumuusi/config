@@ -59,7 +59,10 @@ function setup_date_and_time() {
 	fi
 }
 
+# TODO run the setup all the way from beginning and test if this still works
 function maybe_mount_partitions() {
+	print_header "MOUNTING PARTITIONS"
+
 	if [ "TRUE" != "$(is_mounted "${mountpoint_root}")" ] ; then
 		mount ${root_partition_dev} ${mountpoint_root}
 	fi
@@ -78,6 +81,20 @@ function maybe_mount_partitions() {
 
 	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/home")" ] ; then
 		mount ${home_partition_dev} ${mountpoint_root}/home
+	fi
+
+	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/proc")" ] ; then
+		mount --types proc /proc ${mountpoint_root}/proc
+	fi
+
+	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/sys")" ] ; then
+		mount --rbind /sys ${mountpoint_root}/sys
+		mount --make-rslave ${mountpoint_root}/sys
+	fi
+
+	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/dev")" ] ; then
+		mount --rbind /dev ${mountpoint_root}/dev
+		mount --make-rslave ${mountpoint_root}/dev
 	fi
 }
 
@@ -139,16 +156,6 @@ function setup_portage_configuration() {
 		${mountpoint_root}/usr/share/portage/config/repos.conf \
 		${mountpoint_root}/etc/portage/repos.conf/gentoo.conf
 	cp --dereference /etc/resolv.conf ${mountpoint_root}/etc/
-}
-
-function setup_new_environment() {
-	print_header "SETTING UP NEW ENVIRONMENT"
-
-	mount --types proc /proc ${mountpoint_root}/proc
-	mount --rbind /sys ${mountpoint_root}/sys
-	mount --make-rslave ${mountpoint_root}/sys
-	mount --rbind /dev ${mountpoint_root}/dev
-	mount --make-rslave ${mountpoint_root}/dev
 }
 
 function setup_portage() {
@@ -230,8 +237,6 @@ function install_pre_chroot() {
 
 function install_chroot() {
 	print_header "INSTALL_CHROOT"
-
-	setup_new_environment
 
 	mkdir -p ${mountpoint_root}/${script_root}/
 	cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
