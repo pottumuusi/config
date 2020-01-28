@@ -16,8 +16,6 @@ function debug_print() {
 function is_mounted() {
 	local -r path=$1
 
-	debug_print "is_mounted, path is $path"
-
 	if [ -z "$(mount | grep ${path})" ] ; then
 		echo "TRUE"
 		return
