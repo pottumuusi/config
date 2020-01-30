@@ -46,7 +46,9 @@ readonly home_partition_dev="/dev/${volgroup_name}/home"
 
 readonly opt_pre_chroot="--pre-chroot"
 readonly opt_chroot="--chroot"
-readonly opt_post_chroot="--post-chroot"
 readonly opt_full_install="--full"
+
+# Intended to be called after having chrooted to new environment.
+readonly opt_post_chroot="--post-chroot"
 
 readonly kernel_sources_dir="/usr/src/linux"
