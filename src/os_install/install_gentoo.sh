@@ -215,8 +215,8 @@ function setup_initramfs() {
 	# TODO configuration
 
 	# TODO is --install required?
-	genkernel --lvm initramfs
-	# genkernel --lvm --install initramfs
+	# genkernel --lvm initramfs
+	genkernel --lvm --install initramfs
 
 	rc-update add lvm boot
 
@@ -224,8 +224,6 @@ function setup_initramfs() {
 	#
 	# /etc/default/grub
 	# GRUB_CMDLINE_LINUX="dolvm"
-
-	echo -e "\nsetup_initramfs not yet fully implemented!\n"
 }
 
 function install_pre_chroot() {
