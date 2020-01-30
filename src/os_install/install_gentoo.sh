@@ -209,7 +209,7 @@ function setup_initramfs() {
 	#		* see: https://wiki.gentoo.org/wiki/Custom_Initramfs#LVM
 
 	# TODO install sys-fs/lvm2 with "static" USE flag
-	USE="static" emerge sys-fs/lvm2
+	USE="static static-libs" emerge sys-fs/lvm2
 	emerge sys-kernel/genkernel
 
 	# TODO configuration
