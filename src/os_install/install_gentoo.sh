@@ -210,6 +210,12 @@ function setup_initramfs() {
 
 	# TODO install sys-fs/lvm2 with "static" USE flag
 	USE="static static-libs" emerge sys-fs/lvm2
+
+	# First install is expected to fail. License changes were required
+	# before emerging.
+	emerge --autounmask-write sys-kernel/genkernel || true
+	# TODO check that configuration updates are actually license updates.
+	etc-update --automode -3 # Merge license changes
 	emerge sys-kernel/genkernel
 
 	# TODO configuration
