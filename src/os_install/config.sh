@@ -5,7 +5,7 @@ readonly cfg_should_setup_portage="TRUE"
 readonly cfg_should_setup_timezone="TRUE"
 readonly cfg_should_setup_locale="TRUE"
 readonly cfg_should_setup_kernel="TRUE"
-readonly cfg_should_setup_initramfs="TRUE"
+readonly cfg_should_setup_lvm="TRUE"
 
 readonly main_block_device="/dev/sda"
 readonly mountpoint_root="/mnt/gentoo"

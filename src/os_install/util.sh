@@ -61,8 +61,8 @@ function should_setup_kernel() {
 	echo ""
 }
 
-function should_setup_initramfs() {
-	if [ "TRUE" = "${cfg_should_setup_initramfs}" ] ; then
+function should_setup_lvm() {
+	if [ "TRUE" = "${cfg_should_setup_lvm}" ] ; then
 		echo "TRUE"
 		return
 	fi
