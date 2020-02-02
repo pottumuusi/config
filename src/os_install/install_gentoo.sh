@@ -201,7 +201,7 @@ function setup_kernel() {
 	emerge --ask sys-kernel/linux-firmware
 }
 
-function setup_initramfs() {
+function setup_lvm() {
 	# TODO
 	# LVM initramfs support
 	# 	* use ldd to verify that binary is static
@@ -260,7 +260,7 @@ function install_post_chroot() {
 	test "$(should_setup_timezone)" && setup_timezone
 	test "$(should_setup_locale)" && setup_locale
 	test "$(should_setup_kernel)" && setup_kernel
-	test "$(should_setup_initramfs)" && setup_initramfs
+	test "$(should_setup_lvm)" && setup_lvm
 }
 
 function main() {
