@@ -69,3 +69,10 @@ function should_setup_lvm() {
 
 	echo ""
 }
+
+function read_uuids() {
+	readonly boot_partition_uuid="$(blkid | grep ${boot_partition_dev} | cut -d \" -f 2)"
+	readonly swap_partition_uuid="$(blkid | grep ${swap_partition_dev} | cut -d \" -f 2)"
+	readonly home_volume_uuid="$(blkid | grep ${home_partition_dev} | cut -d \" -f 2)"
+	readonly root_volume_uuid="$(blkid | grep ${root_partition_dev} | cut -d \" -f 2)"
+}
