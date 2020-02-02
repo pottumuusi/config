@@ -270,6 +270,8 @@ function main() {
 		install_pre_chroot
 	fi
 
+	read_uuids
+
 	if [ "TRUE" = "${call_post_chroot_install}" ] ; then
 		maybe_mount_partitions
 		install_chroot
