@@ -265,6 +265,42 @@ function setup_new_system() {
 	# TODO copy fstab to /etc/fstab
 
 	echo "Not yet fully implemented"
+
+	echo "hostname=\"${new_hostname}\"" >> /etc/conf.d/hostname
+	# TODO if no domain name configured, delete string: .\0 from /etc/issue
+
+	emerge --noreplace net-misc/netifrc
+
+	# TODO change interface name, if incorrect
+	echo "config_${inet_if}=\"dhcp\"" >> /etc/conf.d/net
+	pushd /etc/init.d
+	ln -s net.lo net.${inet_if}
+	popd
+	rc-update add net.${inet_if} default
+	# If interface name is changed, need to perform multiple steps.
+	# See: https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/System#Automatically_start_networking_at_boot
+
+	echo "127.0.0.1	${my_hostname}	${my_hostname}	localhost" >> /etc/hosts
+
+	print_header "SETTING ROOT PASSWORD"
+	passwd
+
+	# TODO modify:
+	# /etc/rc.conf
+	# /etc/conf.d/keymaps
+	# /etc/conf.d/hwclock
+
+	emerge app-admin/sysklogd
+	rc-update add sysklogd default
+	# TODO configure logrotate
+
+	if [ "TRUE" != "${DISABLED}" ] ; then
+		emerge sys-apps/cronie
+		rc-update add cronie default
+	fi
+
+	emerge sys-fs/e2fsprogs
+	emerge net-misc/dhcpcd
 }
 
 function install_pre_chroot() {
