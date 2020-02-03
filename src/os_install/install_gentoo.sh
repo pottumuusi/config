@@ -59,7 +59,6 @@ function setup_date_and_time() {
 	fi
 }
 
-# TODO run the setup all the way from beginning and test if this still works
 function maybe_mount_partitions() {
 	print_header "MOUNTING PARTITIONS"
 
@@ -82,6 +81,10 @@ function maybe_mount_partitions() {
 	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/home")" ] ; then
 		mount ${home_partition_dev} ${mountpoint_root}/home
 	fi
+}
+
+function maybe_mount_pseudofilesystems() {
+	print_header "MOUNTING PSEUDOFILESYSTEMS"
 
 	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/proc")" ] ; then
 		mount --types proc /proc ${mountpoint_root}/proc
@@ -101,9 +104,11 @@ function maybe_mount_partitions() {
 function setup_partitions() {
 	print_header "PARTITIONING"
 
+	readonly partition_backup_file="sgdisk-sda.bin"
+
 	# TODO target machine has UEFI, will need to use GPT
 	# Is it possible to use sfdisk or is there another similar tool?
-	sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
+	sgdisk -l=${gentoo_config}/${partition_backup_file} ${main_block_device}
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
 
@@ -302,6 +307,7 @@ function main() {
 
 	if [ "TRUE" = "${call_post_chroot_install}" ] ; then
 		maybe_mount_partitions
+		maybe_mount_pseudofilesystems
 		install_chroot
 	fi
 
