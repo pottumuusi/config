@@ -249,7 +249,14 @@ function setup_new_system() {
 	# 	* cron
 	# 	* dhcp client
 
-	echo "Not yet implemented"
+	echo "" > ${gentoo_config}/fstab
+	echo "${boot_partition_uuid}	/boot	ext2	defaults,noatime	0 2" >> ${gentoo_config}/fstab
+	echo "${swap_partition_uuid}	none	swap				0 0" >> ${gentoo_config}/fstab
+	echo "${root_volume_uuid}	/	ext4	noatime			0 1" >> ${gentoo_config}/fstab
+	echo "${home_volume_uuid}	/home	ext2	defaults,noatime	0 1" >> ${gentoo_config}/fstab
+	# TODO copy fstab to /etc/fstab
+
+	echo "Not yet fully implemented"
 }
 
 function install_pre_chroot() {
@@ -281,6 +288,7 @@ function install_post_chroot() {
 	test "$(should_setup_locale)" && setup_locale
 	test "$(should_setup_kernel)" && setup_kernel
 	test "$(should_setup_lvm)" && setup_lvm
+	test "$(should_setup_new_system)" && setup_new_system
 }
 
 function main() {
