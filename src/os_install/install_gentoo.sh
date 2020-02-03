@@ -208,10 +208,12 @@ function setup_lvm() {
 	# 	* store /usr/src/initramfs/init configuration to ${gentoo_config}
 	#		* see: https://wiki.gentoo.org/wiki/Custom_Initramfs#LVM
 
+	print_header "SETUP_LVM"
+
 	# TODO install sys-fs/lvm2 with "static" USE flag
 	USE="static static-libs" emerge sys-fs/lvm2
 
-	# First install is expected to fail. License changes were required
+	# First emerge is expected to fail. License changes were required
 	# before emerging.
 	emerge --autounmask-write sys-kernel/genkernel || true
 	# TODO check that configuration updates are actually license updates.
@@ -230,6 +232,24 @@ function setup_lvm() {
 	#
 	# /etc/default/grub
 	# GRUB_CMDLINE_LINUX="dolvm"
+}
+
+function setup_new_system() {
+	print_header "SETUP_NEW_SYSTEM"
+
+	# TODO
+	# * fstab
+	# * networking
+	# * root password
+	# * user account
+	# * OpenRC (/etc/rc.conf)
+	# * emerge tools (remember that this is the host system)
+	# 	* system logger (app-admin/sysklogd)
+	#		* logrotate
+	# 	* cron
+	# 	* dhcp client
+
+	echo "Not yet implemented"
 }
 
 function install_pre_chroot() {
