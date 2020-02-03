@@ -70,6 +70,15 @@ function should_setup_lvm() {
 	echo ""
 }
 
+function should_setup_new_system() {
+	if [ "TRUE" = "${cfg_should_setup_new_system}" ] ; then
+		echo "TRUE"
+		return
+	fi
+
+	echo ""
+}
+
 function read_uuids() {
 	readonly boot_partition_uuid="$(blkid | grep ${boot_partition_dev} | cut -d \" -f 2)"
 	readonly swap_partition_uuid="$(blkid | grep ${swap_partition_dev} | cut -d \" -f 2)"
