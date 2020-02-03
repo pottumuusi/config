@@ -42,8 +42,10 @@ readonly volgroup_name="vg01"
 readonly root_size="14G"
 readonly home_size="9995M"
 
-readonly root_partition_dev="/dev/${volgroup_name}/root"
-readonly home_partition_dev="/dev/${volgroup_name}/home"
+readonly lv_name_root="root"
+readonly lv_name_home="home"
+readonly root_partition_dev="/dev/${volgroup_name}/${lv_name_root}"
+readonly home_partition_dev="/dev/${volgroup_name}/${lv_name_home}"
 
 readonly opt_pre_chroot="--pre-chroot"
 readonly opt_chroot="--chroot"

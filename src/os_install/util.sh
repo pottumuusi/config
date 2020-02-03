@@ -82,6 +82,6 @@ function should_setup_new_system() {
 function read_uuids() {
 	readonly boot_partition_uuid="$(blkid | grep ${boot_partition_dev} | cut -d \" -f 2)"
 	readonly swap_partition_uuid="$(blkid | grep ${swap_partition_dev} | cut -d \" -f 2)"
-	readonly home_volume_uuid="$(blkid | grep ${home_partition_dev} | cut -d \" -f 2)"
-	readonly root_volume_uuid="$(blkid | grep ${root_partition_dev} | cut -d \" -f 2)"
+	readonly home_volume_uuid="$(blkid | grep "${volgroup_name}-${lv_name_home}" | cut -d \" -f 2)"
+	readonly root_volume_uuid="$(blkid | grep "${volgroup_name}-${lv_name_root}" | cut -d \" -f 2)"
 }
