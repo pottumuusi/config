@@ -55,3 +55,6 @@ readonly opt_full_install="--full"
 readonly opt_post_chroot="--post-chroot"
 
 readonly kernel_sources_dir="/usr/src/linux"
+
+readonly new_hostname="my_hostname"
+readonly inet_if="eth0"
