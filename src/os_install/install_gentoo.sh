@@ -110,8 +110,15 @@ function setup_partitions() {
 		sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
 	fi
 
-	# Save partition table to file by using: `sgdisk -b=sgdisk-sda.bin /dev/sda`
-	sgdisk -l=${gentoo_config}/${gpt_partition_backup_file} ${main_block_device}
+	# There is a complaint that one or more CRCs do not match. Then it is
+	# informed that backup partition table will be loaded. The loading
+	# succeeds, but sgdisk still seems to exit with error. Thus, do not
+	# care about the command indicating an error.
+	sgdisk -l=${gentoo_config}/${gpt_partition_backup_file} ${main_block_device} \
+		|| true
+	# NOTE Save partition table to file by using:
+	# `sgdisk -b=sgdisk-sda.bin /dev/sda`
+
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
 
@@ -223,7 +230,8 @@ function setup_lvm() {
 
 	# First emerge is expected to fail. License changes were required
 	# before emerging.
-	emerge --autounmask-write sys-kernel/genkernel || true
+	emerge --autounmask-write sys-kernel/genkernel \
+		|| true
 	# TODO check that configuration updates are actually license updates.
 	etc-update --automode -3 # Merge license changes
 	emerge sys-kernel/genkernel
