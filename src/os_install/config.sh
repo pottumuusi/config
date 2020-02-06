@@ -32,6 +32,7 @@ readonly gentoo_config="${script_root}/gentoo_config"
 # start=     4196352, size=     8388608, type=82
 # start=    12584960, size=    50329600, type=8e
 readonly saved_partition_table="${gentoo_config}/saved_partition_table"
+readonly gpt_partition_backup_file="sgdisk-sda.bin"
 readonly boot_partition_dev="${main_block_device}1"
 readonly swap_partition_dev="${main_block_device}2"
 readonly lvm_partition_dev="${main_block_device}3"
