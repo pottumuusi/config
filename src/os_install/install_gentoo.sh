@@ -315,6 +315,9 @@ function install_pre_chroot() {
 function install_chroot() {
 	print_header "INSTALL_CHROOT"
 
+	maybe_mount_partitions
+	maybe_mount_pseudofilesystems
+
 	mkdir -p ${mountpoint_root}/${script_root}/
 	cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
 	chroot ${mountpoint_root} /bin/bash -c \
@@ -345,8 +348,6 @@ function main() {
 	read_uuids
 
 	if [ "TRUE" = "${call_post_chroot_install}" ] ; then
-		maybe_mount_partitions
-		maybe_mount_pseudofilesystems
 		install_chroot
 	fi
 
