@@ -104,14 +104,14 @@ function maybe_mount_pseudofilesystems() {
 function setup_partitions() {
 	print_header "PARTITIONING"
 
-	readonly partition_backup_file="sgdisk-sda.bin"
-
 	# TODO target machine has UEFI, will need to use GPT
 	# Is it possible to use sfdisk or is there another similar tool?
 	if [ "TRUE" != "${DISABLED}" ] ; then
 		sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
 	fi
-	sgdisk -l=${gentoo_config}/${partition_backup_file} ${main_block_device}
+
+	# Save partition table to file by using: `sgdisk -b=sgdisk-sda.bin /dev/sda`
+	sgdisk -l=${gentoo_config}/${gpt_partition_backup_file} ${main_block_device}
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
 
