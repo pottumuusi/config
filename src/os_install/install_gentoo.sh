@@ -213,6 +213,10 @@ function setup_kernel() {
 	make install
 	popd
 
+	emerge --autounmask-write sys-kernel/linux-firmware \
+		|| true
+	# TODO check that configuration updates are actually license updates.
+	etc-update --automode -3 # Merge license changes
 	emerge sys-kernel/linux-firmware
 }
 
