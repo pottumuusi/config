@@ -213,7 +213,7 @@ function setup_kernel() {
 	make install
 	popd
 
-	emerge --ask sys-kernel/linux-firmware
+	emerge sys-kernel/linux-firmware
 }
 
 function setup_lvm() {
