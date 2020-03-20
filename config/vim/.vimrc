@@ -64,6 +64,7 @@ set hidden
 
 " More readable syntax highlighting
 set background=dark
+colorscheme solarized
 
 " Line numbers
 set nu
