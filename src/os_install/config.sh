@@ -7,6 +7,9 @@ readonly cfg_should_setup_locale="TRUE"
 readonly cfg_should_setup_kernel="TRUE"
 readonly cfg_should_setup_lvm="TRUE"
 readonly cfg_should_setup_new_system="TRUE"
+readonly cfg_should_setup_bootloader="TRUE"
+
+readonly cfg_set_efi64_grub_platform="FALSE"
 
 readonly main_block_device="/dev/sda"
 readonly mountpoint_root="/mnt/gentoo"

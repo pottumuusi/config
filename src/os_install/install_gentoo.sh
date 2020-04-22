@@ -310,6 +310,16 @@ function setup_new_system() {
 	emerge net-misc/dhcpcd
 }
 
+function setup_bootloader() {
+	if [ "TRUE" = "${cfg_set_efi64_grub_platform}" ] ; then
+		echo 'GRUB_PLATFORMS="efi-64"' >> /etc/portage/make.conf
+	fi
+
+	emerge sys-boot/grub:2
+
+	echo -e "\n\n>>>>> setup_bootloader still in progress<<<<< \n\n"
+}
+
 function install_pre_chroot() {
 	print_header "INSTALL_PRE-CHROOT"
 	presetup
@@ -343,6 +353,7 @@ function install_post_chroot() {
 	test "$(should_setup_kernel)" && setup_kernel
 	test "$(should_setup_lvm)" && setup_lvm
 	test "$(should_setup_new_system)" && setup_new_system
+	test "$(should_setup_bootloader)" && setup_bootloader
 }
 
 function main() {
