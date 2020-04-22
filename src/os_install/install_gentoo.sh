@@ -258,8 +258,6 @@ function setup_new_system() {
 	print_header "SETUP_NEW_SYSTEM"
 
 	# TODO
-	# * networking
-	# * root password
 	# * user account
 	# * OpenRC (/etc/rc.conf)
 	# * emerge tools (remember that this is the host system)
@@ -294,7 +292,7 @@ function setup_new_system() {
 	print_header "SETTING ROOT PASSWORD"
 	passwd
 
-	# TODO modify:
+	# TODO modify and copy to config dir:
 	# /etc/rc.conf
 	# /etc/conf.d/keymaps
 	# /etc/conf.d/hwclock
