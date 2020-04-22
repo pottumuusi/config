@@ -258,7 +258,6 @@ function setup_new_system() {
 	print_header "SETUP_NEW_SYSTEM"
 
 	# TODO
-	# * fstab
 	# * networking
 	# * root password
 	# * user account
@@ -274,9 +273,7 @@ function setup_new_system() {
 	echo "${swap_partition_uuid}	none	swap				0 0" >> ${gentoo_config}/fstab
 	echo "${root_volume_uuid}	/	ext4	noatime			0 1" >> ${gentoo_config}/fstab
 	echo "${home_volume_uuid}	/home	ext2	defaults,noatime	0 1" >> ${gentoo_config}/fstab
-	# TODO copy fstab to /etc/fstab
-
-	echo "Not yet fully implemented"
+	cat ${gentoo_config}/fstab >> /etc/fstab
 
 	echo "hostname=\"${new_hostname}\"" >> /etc/conf.d/hostname
 	# TODO if no domain name configured, delete string: .\0 from /etc/issue
