@@ -313,6 +313,8 @@ function setup_bootloader() {
 		echo 'GRUB_PLATFORMS="efi-64"' >> /etc/portage/make.conf
 	fi
 
+	# TODO select whether to install for BIOS or UEFI
+
 	emerge sys-boot/grub:2
 
 	echo -e "\n\n>>>>> setup_bootloader still in progress<<<<< \n\n"
