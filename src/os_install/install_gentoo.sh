@@ -318,6 +318,18 @@ function setup_bootloader() {
 	echo -e "\n\n>>>>> setup_bootloader still in progress<<<<< \n\n"
 }
 
+function setup_packages() {
+	emerge x11-base/xorg-x11 \
+		|| true
+	emerge --autounmask-write x11-base/xorg-x11
+	emerge x11-terms/st \
+		x11-misc/dmenu \
+		x11-wm/dwm \
+		app-editors/vim \
+		dev-vcs/git \
+		app-misc/tmux
+}
+
 function install_pre_chroot() {
 	print_header "INSTALL_PRE-CHROOT"
 	presetup
@@ -353,6 +365,7 @@ function install_post_chroot() {
 	test "$(should_setup_lvm)" && setup_lvm
 	test "$(should_setup_new_system)" && setup_new_system
 	test "$(should_setup_bootloader)" && setup_bootloader
+	test "$(should_setup_packages)" && setup_packages
 }
 
 function main() {
