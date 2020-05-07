@@ -39,7 +39,7 @@ function process_args() {
 	done
 
 	if [ "TRUE" = "${is_pre_chroot_install}" -a "TRUE" = "${is_post_chroot_install}" ] ; then
-		error_exit "Please choose either --pre-chroot or --post-chroot as program argument. Not both."
+		error_exit "Please choose either --pre-chroot or ${opt_post_chroot} as program argument. Not both."
 	fi
 }
 
@@ -125,14 +125,12 @@ function setup_partitions() {
 	pvcreate ${lvm_partition_dev}
 	vgcreate ${volgroup_name} ${lvm_partition_dev}
 
-	lvcreate --yes --type linear -L ${root_size} -n root ${volgroup_name}
-	lvcreate --yes --type linear -L ${home_size} -n home ${volgroup_name}
+	lvcreate --yes --type linear -L ${root_size} -n ${lv_name_root} ${volgroup_name}
+	lvcreate --yes --type linear -L ${home_size} -n ${lv_name_home} ${volgroup_name}
 
 	mkfs.ext2 -F -F ${boot_partition_dev}
 	mkfs.ext4 -F -F ${root_partition_dev}
 	mkfs.ext4 -F -F ${home_partition_dev}
-
-	maybe_mount_partitions
 }
 
 function setup_stage_tarball() {
@@ -323,7 +321,8 @@ function setup_bootloader() {
 function install_pre_chroot() {
 	print_header "INSTALL_PRE-CHROOT"
 	presetup
-	setup_partitions
+	test "$(should_setup_partitions)" && setup_partitions
+	maybe_mount_partitions
 	setup_date_and_time
 	setup_stage_tarball
 	setup_portage_configuration
@@ -338,7 +337,7 @@ function install_chroot() {
 	mkdir -p ${mountpoint_root}/${script_root}/
 	cp -r ${script_root}/* ${mountpoint_root}/${script_root}/
 	chroot ${mountpoint_root} /bin/bash -c \
-		"${script_root}/install_gentoo.sh --post-chroot"
+		"${script_root}/install_gentoo.sh ${opt_post_chroot}"
 }
 
 function install_post_chroot() {

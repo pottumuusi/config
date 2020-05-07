@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Select what to setup
+readonly cfg_should_setup_partitions="FALSE"
+
 readonly cfg_should_setup_portage="TRUE"
 readonly cfg_should_setup_timezone="TRUE"
 readonly cfg_should_setup_locale="TRUE"
@@ -27,6 +29,14 @@ readonly stage3_tar="$(curl ${frozen_stage3_release_dir}	\
 
 readonly gentoo_config="${script_root}/gentoo_config"
 
+readonly make_conf="${gentoo_config}/make.conf"
+
+readonly lv_name_root="root2"
+readonly lv_name_home="home2"
+readonly volgroup_name="vg01"
+readonly root_partition_dev="/dev/${volgroup_name}/${lv_name_root}"
+readonly home_partition_dev="/dev/${volgroup_name}/${lv_name_home}"
+
 # label: dos
 # label-id: 0x25a3d9ff
 # unit: sectors
@@ -37,19 +47,12 @@ readonly gentoo_config="${script_root}/gentoo_config"
 readonly saved_partition_table="${gentoo_config}/saved_partition_table"
 readonly gpt_partition_backup_file="sgdisk-sda.bin"
 readonly boot_partition_dev="${main_block_device}1"
-readonly swap_partition_dev="${main_block_device}2"
-readonly lvm_partition_dev="${main_block_device}3"
+# readonly swap_partition_dev="${main_block_device}2"
+readonly swap_partition_dev="/dev/${volgroup_name}/swap"
+readonly lvm_partition_dev="${main_block_device}2"
 
-readonly make_conf="${gentoo_config}/make.conf"
-
-readonly volgroup_name="vg01"
 readonly root_size="14G"
 readonly home_size="9995M"
-
-readonly lv_name_root="root"
-readonly lv_name_home="home"
-readonly root_partition_dev="/dev/${volgroup_name}/${lv_name_root}"
-readonly home_partition_dev="/dev/${volgroup_name}/${lv_name_home}"
 
 readonly opt_pre_chroot="--pre-chroot"
 readonly opt_chroot="--chroot"
@@ -61,4 +64,5 @@ readonly opt_post_chroot="--post-chroot"
 readonly kernel_sources_dir="/usr/src/linux"
 
 readonly new_hostname="my_hostname"
-readonly inet_if="eth0" # TODO read this from a command, instead of hardcoding
+readonly inet_if="enp0s25" # TODO read this from a command, instead of hardcoding
+# readonly inet_if="wlp3s0" # TODO read this from a command, instead of hardcoding
