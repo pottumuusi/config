@@ -265,10 +265,10 @@ function setup_new_system() {
 	# 	* dhcp client
 
 	echo "" > ${gentoo_config}/fstab
-	echo "${boot_partition_uuid}	/boot	ext2	defaults,noatime	0 2" >> ${gentoo_config}/fstab
-	echo "${swap_partition_uuid}	none	swap				0 0" >> ${gentoo_config}/fstab
-	echo "${root_volume_uuid}	/	ext4	noatime			0 1" >> ${gentoo_config}/fstab
-	echo "${home_volume_uuid}	/home	ext2	defaults,noatime	0 1" >> ${gentoo_config}/fstab
+	echo "UUID=${boot_partition_uuid}	/boot	ext2	defaults,noatime	0 2" >> ${gentoo_config}/fstab
+	echo "UUID=${swap_partition_uuid}	none	swap				0 0" >> ${gentoo_config}/fstab
+	echo "UUID=${root_volume_uuid}	/	ext4	noatime			0 1" >> ${gentoo_config}/fstab
+	echo "UUID=${home_volume_uuid}	/home	ext2	defaults,noatime	0 1" >> ${gentoo_config}/fstab
 	cat ${gentoo_config}/fstab >> /etc/fstab
 
 	echo "hostname=\"${new_hostname}\"" >> /etc/conf.d/hostname
