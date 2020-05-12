@@ -317,7 +317,11 @@ function setup_bootloader() {
 
 	emerge sys-boot/grub:2
 
-	echo -e "\n\n>>>>> setup_bootloader still in progress<<<<< \n\n"
+	if [ "TRUE" = "${cfg_install_grub_to_disk}" ] ; then
+		grub-install ${main_block_device}
+	fi
+
+	grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 function setup_packages() {

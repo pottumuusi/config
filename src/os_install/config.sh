@@ -14,6 +14,9 @@ readonly cfg_should_setup_packages="TRUE"
 
 readonly cfg_set_efi64_grub_platform="FALSE"
 
+# Will create grub config regardless of this option
+readonly cfg_install_grub_to_disk="TRUE"
+
 readonly main_block_device="/dev/sda"
 readonly mountpoint_root="/mnt/gentoo"
 
