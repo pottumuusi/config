@@ -9,12 +9,16 @@ function bringup_ubuntu() {
 	local -r USEFUL_FILES_CONFIG_DIR="${HOME}/my/util/useful-files/config"
 	local -r VIM_COLORS_SOLARIZED_DIR="${HOME}/my/util/vim-colors-solarized"
 	local -r VUNDLE_DIR="${HOME}/.vim/bundle/Vundle.vim"
+	local -r NVIM_CONFIG_DIR="${HOME}/.config/nvim"
 
 	if [ ! -d "${HOME}/my/util" ] ; then
 		mkdir ${HOME}/my/util
 	fi
 	if [ ! -d "${HOME}/.vim/colors" ] ; then
 		mkdir -p ${HOME}/.vim/colors
+	fi
+	if [ ! -d "${NVIM_CONFIG_DIR}" ] ; then
+		mkdir -p ${NVIM_CONFIG_DIR}
 	fi
 
 	if [ ! -d "${VIM_COLORS_SOLARIZED_DIR}" ] ; then
@@ -36,7 +40,7 @@ function bringup_ubuntu() {
 		eatmydata
 
 	cp ${USEFUL_FILES_CONFIG_DIR}/bash/.bash_profile ${HOME}
-	cp ${USEFUL_FILES_CONFIG_DIR}/nvim/.config/nvim/init.vim ${HOME}
+	cp ${USEFUL_FILES_CONFIG_DIR}/nvim/.config/nvim/init.vim ${NVIM_CONFIG_DIR}/
 	cp ${USEFUL_FILES_CONFIG_DIR}/vim/.vimrc ${HOME}
 	cp ${USEFUL_FILES_CONFIG_DIR}/x/.Xmodmap ${HOME}
 	# cp ${USEFUL_FILES_CONFIG_DIR}/x/.xinitrc ${HOME}
