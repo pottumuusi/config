@@ -44,8 +44,12 @@ function bringup_ubuntu() {
 	cp ${USEFUL_FILES_CONFIG_DIR}/tmux/oh_my_tmux/.tmux.conf.local ${HOME}
 
 	if [ "TRUE" = "${IS_LIVE_ENV}" ] ; then
-		echo "Storage=volatile"  >> /etc/systemd/journald.conf
-		echo "RuntimeMaxUse=30M" >> /etc/systemd/journald.conf
+		if [ -z "$(grep "Storage=volatile" /etc/systemd/journald.conf)" ] ; then
+			echo 'Storage=volatile'  | sudo tee -a /etc/systemd/journald.conf > /dev/null
+		fi
+		if [ -z "$(grep "RuntimeMaxUse=30M" /etc/systemd/journald.conf)" ] ; then
+			echo 'RuntimeMaxUse=30M' | sudo tee -a /etc/systemd/journald.conf > /dev/null
+		fi
 	fi
 
 	source ${USEFUL_FILES_DIR}/src/git/aliases.sh
