@@ -10,12 +10,22 @@ function bringup_ubuntu() {
 	local -r VIM_COLORS_SOLARIZED_DIR="${HOME}/my/util/vim-colors-solarized"
 	local -r VUNDLE_DIR="${HOME}/.vim/bundle/Vundle.vim"
 
-	mkdir ${HOME}/util
-	mkdir -p ${HOME}/.vim/colors
+	if [ ! -d "${HOME}/my/util" ] ; then
+		mkdir ${HOME}/my/util
+	fi
+	if [ ! -d "${HOME}/.vim/colors" ] ; then
+		mkdir -p ${HOME}/.vim/colors
+	fi
 
-	git clone https://github.com/altercation/vim-colors-solarized.git ${VIM_COLORS_SOLARIZED_DIR}
-	git clone https://github.com/pottumuusi/useful-files.git ${USEFUL_FILES_DIR}
-	git clone https://github.com/VundleVim/Vundle.vim.git ${VUNDLE_DIR}
+	if [ ! -d "${VIM_COLORS_SOLARIZED_DIR}" ] ; then
+		git clone https://github.com/altercation/vim-colors-solarized.git ${VIM_COLORS_SOLARIZED_DIR}
+	fi
+	if [ ! -d "${USEFUL_FILES_DIR}" ] ; then
+		git clone https://github.com/pottumuusi/useful-files.git ${USEFUL_FILES_DIR}
+	fi
+	if [ ! -d "${VUNDLE_DIR}" ] ; then
+		git clone https://github.com/VundleVim/Vundle.vim.git ${VUNDLE_DIR}
+	fi
 
 	mv ${VIM_COLORS_SOLARIZED_DIR}/solarized.vim ${HOME}/.vim/colors
 
