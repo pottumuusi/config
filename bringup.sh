@@ -2,6 +2,8 @@
 
 set -ex
 
+readonly IS_LIVE_ENV="TRUE"
+
 function bringup_ubuntu() {
 	local -r USEFUL_FILES_DIR="${HOME}/my/util/useful-files"
 	local -r USEFUL_FILES_CONFIG_DIR="${HOME}/my/util/useful-files/config"
@@ -30,6 +32,11 @@ function bringup_ubuntu() {
 	# cp ${USEFUL_FILES_CONFIG_DIR}/x/.xinitrc ${HOME}
 	cp ${USEFUL_FILES_CONFIG_DIR}/tmux/oh_my_tmux/.tmux.conf ${HOME}
 	cp ${USEFUL_FILES_CONFIG_DIR}/tmux/oh_my_tmux/.tmux.conf.local ${HOME}
+
+	if [ "TRUE" = "${IS_LIVE_ENV}" ] ; then
+		echo "Storage=volatile"  >> /etc/systemd/journald.conf
+		echo "RuntimeMaxUse=30M" >> /etc/systemd/journald.conf
+	fi
 
 	source ${USEFUL_FILES_DIR}/src/git/aliases.sh
 }
