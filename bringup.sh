@@ -57,6 +57,9 @@ function bringup_ubuntu() {
 	fi
 
 	source ${USEFUL_FILES_DIR}/src/git/aliases.sh
+
+	echo "Run to remove libreoffice:"
+	echo "sudo apt-get remove --purge libreoffice* && sudo apt-get clean && sudo apt-get autoremove"
 }
 
 function main() {
