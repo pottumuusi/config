@@ -27,7 +27,7 @@ function bringup_ubuntu() {
 		git clone https://github.com/VundleVim/Vundle.vim.git ${VUNDLE_DIR}
 	fi
 
-	mv ${VIM_COLORS_SOLARIZED_DIR}/solarized.vim ${HOME}/.vim/colors
+	mv ${VIM_COLORS_SOLARIZED_DIR}/colors/solarized.vim ${HOME}/.vim/colors
 
 	sudo apt-get update
 	sudo apt-get install \
