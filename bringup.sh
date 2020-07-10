@@ -30,7 +30,7 @@ function bringup_ubuntu() {
 	mv ${VIM_COLORS_SOLARIZED_DIR}/colors/solarized.vim ${HOME}/.vim/colors
 
 	sudo apt-get update
-	sudo apt-get install \
+	sudo apt-get -y install \
 		neovim \
 		tmux \
 		eatmydata
