@@ -12,7 +12,7 @@ function bringup_ubuntu() {
 	local -r NVIM_CONFIG_DIR="${HOME}/.config/nvim"
 
 	if [ ! -d "${HOME}/my/util" ] ; then
-		mkdir ${HOME}/my/util
+		mkdir -p ${HOME}/my/util
 	fi
 	if [ ! -d "${HOME}/.vim/colors" ] ; then
 		mkdir -p ${HOME}/.vim/colors
