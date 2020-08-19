@@ -29,6 +29,7 @@ Plugin 'ctrlpvim/ctrlp.vim'
 
 " Files
 Plugin 'tpope/vim-vinegar'
+Plugin 'jlanzarotta/bufexplorer'
 
 " View
 Plugin 'majutsushi/tagbar'
@@ -80,6 +81,9 @@ set colorcolumn=79
 
 set tabpagemax=100
 
+" Disable search highlighting
+set nohlsearch
+
 " Highlight current line
 set cursorline
 hi CursorLine	ctermbg=black
@@ -88,6 +92,7 @@ hi CursorColumn ctermbg=black
 		\ ctermfg=red guibg=black guifg=red
 
 "let $VIMRUNTIME='/usr/share/vim/vim80'
+let $VIMRUNTIME='/usr/share/vim/vim82'
 syntax enable
 "source $VIMRUNTIME/syntax/syntax.vim
 
@@ -168,6 +173,9 @@ nmap <F10> :SyntasticCheck<CR>
 
 " Syntastic to passive mode and back
 nmap <leader>stm :SyntasticToggleMode<CR>
+
+" NVIM: turn off highlighting of most recent search
+nmap <leader>so :noh<CR>
 
 nmap <leader>bs :CtrlPBuffer<CR>
 
