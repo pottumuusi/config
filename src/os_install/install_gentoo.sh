@@ -108,8 +108,6 @@ function setup_partitions() {
 		error_exit "Config tells to write partition using sfdisk and sgdisk. Expecting only one of these to be chosen."
 	fi
 
-	# TODO target machine has UEFI, will need to use GPT
-	# Is it possible to use sfdisk or is there another similar tool?
 	if [ "TRUE" = "${cfg_write_partition_using_sfdisk}" ] ; then
 		sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
 		# TODO Add note about how to save partition table, as with sgdisk.
