@@ -13,6 +13,8 @@ readonly cfg_should_setup_bootloader="TRUE"
 readonly cfg_should_setup_packages="TRUE"
 
 readonly cfg_set_efi64_grub_platform="FALSE"
+readonly cfg_write_partition_using_sfdisk="TRUE"
+readonly cfg_write_partition_using_sgdisk="FALSE"
 
 # Will create grub config regardless of this option
 readonly cfg_install_grub_to_disk="TRUE"

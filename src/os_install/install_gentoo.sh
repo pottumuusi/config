@@ -104,21 +104,28 @@ function maybe_mount_pseudofilesystems() {
 function setup_partitions() {
 	print_header "PARTITIONING"
 
-	# TODO make a configuration flag for selecting between using sfdisk and sgdisk
-	# TODO target machine has UEFI, will need to use GPT
-	# Is it possible to use sfdisk or is there another similar tool?
-	if [ "TRUE" != "${DISABLED}" ] ; then
-		sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
+	if [ "TRUE" = "${cfg_write_partition_using_sfdisk}" -a "TRUE" = "${cfg_write_partition_using_sgdisk}" ] ; then
+		error_exit "Config tells to write partition using sfdisk and sgdisk. Expecting only one of these to be chosen."
 	fi
 
-	# There is a complaint that one or more CRCs do not match. Then it is
-	# informed that backup partition table will be loaded. The loading
-	# succeeds, but sgdisk still seems to exit with error. Thus, do not
-	# care about the command indicating an error.
-	sgdisk -l=${gentoo_config}/${gpt_partition_backup_file} ${main_block_device} \
-		|| true
-	# NOTE Save partition table to file by using:
-	# `sgdisk -b=sgdisk-sda.bin /dev/sda`
+	# TODO target machine has UEFI, will need to use GPT
+	# Is it possible to use sfdisk or is there another similar tool?
+	if [ "TRUE" = "${cfg_write_partition_using_sfdisk}" ] ; then
+		sfdisk --wipe always ${main_block_device} < ${saved_partition_table}
+		# TODO Add note about how to save partition table, as with sgdisk.
+	fi
+
+	if [ "TRUE" = "${cfg_write_partition_using_sgdisk}" ] ; then
+		# There is a complaint that one or more CRCs do not match. Then
+		# it is informed that backup partition table will be loaded.
+		# The loading succeeds, but sgdisk still seems to exit with
+		# error. Thus, do not care about the command indicating an
+		# error.
+		sgdisk -l=${gentoo_config}/${gpt_partition_backup_file} ${main_block_device} \
+			|| true
+		# NOTE Save partition table to file by using:
+		# `sgdisk -b=sgdisk-sda.bin /dev/sda`
+	fi
 
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
