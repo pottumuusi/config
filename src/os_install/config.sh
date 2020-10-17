@@ -56,14 +56,14 @@ fi
 readonly root_partition_dev="${temp_root_partition_dev}"
 readonly home_partition_dev="${temp_home_partition_dev}"
 readonly swap_partition_dev="${temp_swap_partition_dev}"
+readonly boot_partition_dev="${main_block_device}1"
+readonly lvm_partition_dev="${main_block_device}2"
 unset temp_root_partition_dev
 unset temp_home_partition_dev
 unset temp_swap_partition_dev
 
 readonly saved_partition_table="${gentoo_config}/saved_partition_table"
 readonly gpt_partition_backup_file="sgdisk-sda.bin"
-readonly boot_partition_dev="${main_block_device}1"
-readonly lvm_partition_dev="${main_block_device}2"
 
 readonly root_size="14G"
 readonly home_size="9995M"
