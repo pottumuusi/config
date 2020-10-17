@@ -74,12 +74,12 @@ function maybe_mount_partitions() {
 		mount ${boot_partition_dev} ${mountpoint_root}/boot
 	fi
 
-	if [ ! -d "${mountpoint_root}/home" ] ; then
-		mkdir ${mountpoint_root}/home
+	if [ ! -d "${mountpoint_home}" ] ; then
+		mkdir ${mountpoint_home}
 	fi
 
-	if [ "TRUE" != "$(is_mounted "${mountpoint_root}/home")" ] ; then
-		mount ${home_partition_dev} ${mountpoint_root}/home
+	if [ "TRUE" != "$(is_mounted "${mountpoint_home}")" ] ; then
+		mount ${home_partition_dev} ${mountpoint_home}
 	fi
 }
 
@@ -104,6 +104,7 @@ function maybe_mount_pseudofilesystems() {
 function setup_partitions() {
 	print_header "PARTITIONING"
 
+	# TODO make a configuration flag for selecting between using sfdisk and sgdisk
 	# TODO target machine has UEFI, will need to use GPT
 	# Is it possible to use sfdisk or is there another similar tool?
 	if [ "TRUE" != "${DISABLED}" ] ; then
@@ -122,11 +123,13 @@ function setup_partitions() {
 	mkswap ${swap_partition_dev}
 	swapon ${swap_partition_dev}
 
-	pvcreate ${lvm_partition_dev}
-	vgcreate ${volgroup_name} ${lvm_partition_dev}
+	if [ "TRUE" = "${cfg_should_setup_lvm}" ] ; then
+		pvcreate ${lvm_partition_dev}
+		vgcreate ${volgroup_name} ${lvm_partition_dev}
 
-	lvcreate --yes --type linear -L ${root_size} -n ${lv_name_root} ${volgroup_name}
-	lvcreate --yes --type linear -L ${home_size} -n ${lv_name_home} ${volgroup_name}
+		lvcreate --yes --type linear -L ${root_size} -n ${lv_name_root} ${volgroup_name}
+		lvcreate --yes --type linear -L ${home_size} -n ${lv_name_home} ${volgroup_name}
+	fi
 
 	mkfs.ext2 -F -F ${boot_partition_dev}
 	mkfs.ext4 -F -F ${root_partition_dev}

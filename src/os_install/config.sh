@@ -19,6 +19,7 @@ readonly cfg_install_grub_to_disk="TRUE"
 
 readonly main_block_device="/dev/sda"
 readonly mountpoint_root="/mnt/gentoo"
+readonly mountpoint_home="${mountpoint_root}/home"
 
 # Parse stage3 tar name from webpage.
 readonly frozen_stage3_release_dir="https://mirror.netcologne.de/gentoo/releases/amd64/autobuilds/current-stage3-amd64/"
@@ -37,9 +38,27 @@ readonly make_conf="${gentoo_config}/make.conf"
 
 readonly lv_name_root="root2"
 readonly lv_name_home="home2"
+readonly lv_name_swap="swap"
 readonly volgroup_name="vg01"
-readonly root_partition_dev="/dev/${volgroup_name}/${lv_name_root}"
-readonly home_partition_dev="/dev/${volgroup_name}/${lv_name_home}"
+readonly lvm_root_partition_dev="/dev/${volgroup_name}/${lv_name_root}"
+readonly lvm_home_partition_dev="/dev/${volgroup_name}/${lv_name_home}"
+readonly lvm_swap_partition_dev="/dev/${volgroup_name}/${lv_name_swap}"
+temp_root_partition_dev="${main_block_device}2"
+temp_home_partition_dev="${main_block_device}3"
+temp_swap_partition_dev="${main_block_device}4"
+
+if [ "TRUE" == "$(cfg_should_setup_lvm)" ] ; then
+	temp_root_partition_dev="${lvm_root_partition_dev}"
+	temp_home_partition_dev="${lvm_home_partition_dev}"
+	temp_swap_partition_dev="${lvm_swap_partition_dev}"
+fi
+
+readonly root_partition_dev="${temp_root_partition_dev}"
+readonly home_partition_dev="${temp_home_partition_dev}"
+readonly swap_partition_dev="${temp_swap_partition_dev}"
+unset temp_root_partition_dev
+unset temp_home_partition_dev
+unset temp_swap_partition_dev
 
 # label: dos
 # label-id: 0x25a3d9ff
@@ -51,8 +70,6 @@ readonly home_partition_dev="/dev/${volgroup_name}/${lv_name_home}"
 readonly saved_partition_table="${gentoo_config}/saved_partition_table"
 readonly gpt_partition_backup_file="sgdisk-sda.bin"
 readonly boot_partition_dev="${main_block_device}1"
-# readonly swap_partition_dev="${main_block_device}2"
-readonly swap_partition_dev="/dev/${volgroup_name}/swap"
 readonly lvm_partition_dev="${main_block_device}2"
 
 readonly root_size="14G"
