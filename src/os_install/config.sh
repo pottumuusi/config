@@ -60,13 +60,6 @@ unset temp_root_partition_dev
 unset temp_home_partition_dev
 unset temp_swap_partition_dev
 
-# label: dos
-# label-id: 0x25a3d9ff
-# unit: sectors
-#
-# start=        2048, size=     4194304, type=83, bootable
-# start=     4196352, size=     8388608, type=82
-# start=    12584960, size=    50329600, type=8e
 readonly saved_partition_table="${gentoo_config}/saved_partition_table"
 readonly gpt_partition_backup_file="sgdisk-sda.bin"
 readonly boot_partition_dev="${main_block_device}1"
