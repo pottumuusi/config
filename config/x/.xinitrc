@@ -1,5 +1,5 @@
 xset r rate 170 30
-setxkbmap fi
+setxkbmap en_US
 xmodmap ~/.Xmodmap
 
 # exec i3
