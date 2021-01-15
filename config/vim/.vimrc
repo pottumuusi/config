@@ -25,7 +25,6 @@ Plugin 'tpope/vim-fugitive'
 
 " Search
 Plugin 'mileszs/ack.vim'
-Plugin 'ctrlpvim/ctrlp.vim'
 
 " Files
 Plugin 'tpope/vim-vinegar'
@@ -37,7 +36,6 @@ Plugin 'majutsushi/tagbar'
 " Edit
 Plugin 'tpope/vim-commentary'
 Plugin 'sjl/gundo.vim'
-Plugin 'SirVer/ultisnips'
 Plugin 'vim-scripts/VisIncr'
 
 " Language
@@ -176,8 +174,6 @@ nmap <leader>stm :SyntasticToggleMode<CR>
 
 " NVIM: turn off highlighting of most recent search
 nmap <leader>so :noh<CR>
-
-nmap <leader>bs :CtrlPBuffer<CR>
 
 nmap <leader>new 0i[ ---- ]<ESC>
 nmap <leader>did 0f-deiDONE<ESC>
