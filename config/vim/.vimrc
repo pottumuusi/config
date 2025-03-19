@@ -8,6 +8,7 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 
 Plugin 'jlanzarotta/bufexplorer'
+Plugin 'tpope/vim-fugitive'
 
 call vundle#end()		" required
 
