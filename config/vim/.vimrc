@@ -33,6 +33,12 @@ set autoindent
 
 let mapleader = ","
 
+" Use flattened_dark colorscheme when running vimdiff from commandline
+" https://stackoverflow.com/questions/2019281/load-different-colorscheme-when-using-vimdiff
+if &diff
+	colorscheme flattened_dark
+endif
+
 nmap <F7> :tabp<CR>
 nmap <F8> :tabn<CR>
 
