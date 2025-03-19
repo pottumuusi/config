@@ -29,6 +29,8 @@ syntax enable
 " :set smartindent
 " :set autoindent
 
+set autoindent
+
 let mapleader = ","
 
 nmap <F7> :tabp<CR>
