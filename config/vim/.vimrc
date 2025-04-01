@@ -42,6 +42,6 @@ endif
 nmap <F7> :tabp<CR>
 nmap <F8> :tabn<CR>
 
-nmap <leader>it :set noexpandtab softtabstop=0 tabstop=8 shiftwidth=8<CR>
+nmap <leader>it :set noexpandtab softtabstop=0 tabstop=8 shiftwidth=8 autoindent<CR>
 nmap <leader>is :set tabstop=8 softtabstop=0 expandtab
-	\ shiftwidth=4 smarttab<CR>
+	\ shiftwidth=4 smarttab autoindent<CR>
