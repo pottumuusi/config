@@ -14,7 +14,8 @@ main() {
     window='1'
     tmux new-window -t ${session_name}:${window} -n 'maintenance'
 
-    # TODO source project window names from a dotfile configuration of user
+    # TODO
+    # [#27] source project window names from a dotfile configuration of user.
     window='2'
     tmux new-window -t ${session_name}:${window} -n 'rogue-forever'
 
