@@ -31,6 +31,9 @@ syntax enable
 
 set autoindent
 
+" The default was 5, disallowing cursor movement to top and bottom of screen.
+set scrolloff=0
+
 let mapleader = ","
 
 " Use flattened_dark colorscheme when running vimdiff from commandline
