@@ -31,7 +31,7 @@ syntax enable
 
 set autoindent
 
-" The default was 5, disallowing cursor movement to top and bottom of screen.
+" The default was 5, disallowing cursor movement to top and bottom of window.
 set scrolloff=0
 
 let mapleader = ","
