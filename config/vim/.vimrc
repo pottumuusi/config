@@ -34,6 +34,9 @@ set autoindent
 " The default was 5, disallowing cursor movement to top and bottom of window.
 set scrolloff=0
 
+" Do not add newline at the end of file
+" :set nofixeol
+
 let mapleader = ","
 
 " Use flattened_dark colorscheme when running vimdiff from commandline
