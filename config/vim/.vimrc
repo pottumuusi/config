@@ -9,6 +9,7 @@ Plugin 'VundleVim/Vundle.vim'
 
 Plugin 'jlanzarotta/bufexplorer'
 Plugin 'tpope/vim-fugitive'
+Plugin 'preservim/tagbar'
 
 call vundle#end()		" required
 
