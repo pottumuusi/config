@@ -1,5 +1,6 @@
-# Run `scripts/setup_nix_channels.sh` prior trying to enter development shell
-# with `nix-shell ./shell.nix`.
+# Run:
+# `https://github.com/pottumuusi/fleet-management/blob/main/application/setup_nix.sh`
+# prior trying to enter development shell with `nix-shell ./shell.nix`.
 
 { pkgs ? import <nixpkgs> {} }:
   pkgs.mkShell {
