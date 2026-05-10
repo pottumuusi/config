@@ -7,6 +7,10 @@
 # slackware version of dircolors) are recognized but ignored.
 # Below are TERM entries, which can be a glob patterns, to match
 # against the TERM environment variable to determine if it is colorizable.
+#
+# This configuration fixes coloring of file names with .bak suffix for
+# Solarized. The file name coloring was originally the same color as
+# background.
 TERM Eterm
 TERM ansi
 TERM *color*
