@@ -10,4 +10,4 @@ if [ -f "${HOME}/.bash_aliases" ] ; then
 	source ${HOME}/.bash_aliases
 fi
 
-eval "$(dircolors ~/.dir_colors)"
+eval "$(dircolors --bourne-shell ~/.dir_colors)"
