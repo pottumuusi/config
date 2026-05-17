@@ -2,13 +2,13 @@
 
 set -e
 
-# readonly transfer_port=$(keepassxc-cli \
-#         show --show-protected \
-#         ${HOME}/my/data/for_programs/keepass/Database.kdbx \
-#         "for_automation/backups/transfer_port" \
-#         | grep "Password:" \
-#         | tr -d ' ' \
-#         | cut -d ':' -f 2)
+readonly backup_transfer_port=$(keepassxc-cli \
+	show --show-protected \
+	${HOME}/my/data/for_programs/keepass/Database.kdbx \
+	"for_automation/backups/transfer_port" \
+	| grep "Password:" \
+	| tr -d ' ' \
+	| cut -d ':' -f 2)
 
 readonly nftables_configuration=$(cat <<HEREDOC
 #!/usr/sbin/nft -f
@@ -31,8 +31,7 @@ table inet filter {
 		iif lo accept
 
 		# Allow traffic to port used for serving backups
-		# tcp dport { ${transfer_port}, } accept
-		tcp dport { 8000, } accept
+		tcp dport { ${backup_transfer_port}, } accept
 
 		# Accept neighbour discovery otherwise IPv6 connectivity breaks
 		icmpv6 type { nd-neighbor-solicit, nd-router-advert, nd-neighbor-advert } accept
