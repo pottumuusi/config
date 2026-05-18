@@ -19,7 +19,7 @@ flush ruleset
 # https://wiki.nftables.org/wiki-nftables/index.php/Simple_ruleset_for_a_server
 # https://wiki.nftables.org/wiki-nftables/index.php/Quick_reference-nftables_in_10_minutes
 
-table inet filter {
+table inet filter_ipv4_ipv6 {
 	chain input {
 		# Discard all packets not accepted by the ruleset
 		type filter hook input priority 0; policy drop;
